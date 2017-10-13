@@ -1,2 +1,2 @@
-# sprint-planning
-DuraSpace Tech Team Sprint Planning
+# Lambdora
+A serverless implementation of the Fedora Repository API on AWS 

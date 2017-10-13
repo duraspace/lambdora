@@ -1,0 +1,26 @@
+service: lambdora
+
+frameworkVersion: ">=1.2.0 <2.0.0"
+
+provider:
+  name: aws
+  runtime: java8
+  
+package:
+  artifact: build/distributions/lambdora-app.zip
+  #artifact: target/lambdora-app-dev.zip
+
+functions:
+  ldpGet:
+    handler: org.fcrepo.lambdora.ldp.GetHandler
+    events:
+      - http:
+          path: rest 
+          method: get 
+  ldpPost:
+    handler: org.fcrepo.lambdora.ldp.PostHandler
+    events:
+      - http:
+          path: rest 
+          method: post 
+ 

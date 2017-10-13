@@ -17,7 +17,11 @@ public class GetHandler implements RequestHandler<Map<String, Object>, ApiGatewa
 	@Override
 	public ApiGatewayResponse handleRequest(Map<String, Object> input, Context context) {
 		LOG.info("received: " + input);
-		Response responseBody = new Response("GET: Welcome to Lambdora, the current time is " + new Date());
+		String path = (String)input.get("path");
+		String relativePath = (String)((Map<String,Object>)input.get("pathParameters")).get("thepath");
+
+		Response responseBody = new Response("GET: Welcome to Lambdora, the current time is " + new Date() + ". path="
+				+ path + "; relativePath=" + relativePath);
 		Map<String, String> headers = new HashMap<>();
 		headers.put("X-Powered-By", "AWS Lambda & Serverless");
 		headers.put("Content-Type", "application/json");

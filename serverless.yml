@@ -15,12 +15,12 @@ functions:
     handler: org.fcrepo.lambdora.ldp.GetHandler
     events:
       - http:
-          path: rest 
-          method: get 
+          path: /rest/{thepath+}
+          method: get
   ldpPost:
     handler: org.fcrepo.lambdora.ldp.PostHandler
     events:
       - http:
-          path: rest 
-          method: post 
+          path: /rest/{thepath+}
+          method: post
  

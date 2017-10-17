@@ -1,5 +1,7 @@
 *.class
 .gradle
+gradlew*
+gradle/
 /build/
 /bin/
 /.settings/

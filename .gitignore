@@ -2,9 +2,10 @@
 .gradle
 gradlew*
 gradle/
-/build/
+build
 /bin/
 /.settings/
+/.idea/
 .project
 .classpath
 target

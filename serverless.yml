@@ -7,8 +7,7 @@ provider:
   runtime: java8
   
 package:
-  artifact: build/distributions/lambdora-app.zip
-  #artifact: target/lambdora-app-dev.zip
+  artifact: lambdora-http-api/build/distributions/lambdora-http-api-0.0.1.zip
 
 functions:
   ldpGet:

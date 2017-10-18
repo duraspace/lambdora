@@ -23,9 +23,10 @@ public class ApiGatewayResponse {
 
     /**
      * Constructor
-     * @param statusCode status code
-     * @param body body
-     * @param headers headers
+     *
+     * @param statusCode      status code
+     * @param body            body
+     * @param headers         headers
      * @param isBase64Encoded flag
      */
     public ApiGatewayResponse(final int statusCode, final String body, final Map<String, String> headers,
@@ -37,7 +38,8 @@ public class ApiGatewayResponse {
     }
 
     /**
-     *  get http status code
+     * get http status code
+     *
      * @return
      */
     public int getStatusCode() {
@@ -46,6 +48,7 @@ public class ApiGatewayResponse {
 
     /**
      * get response body
+     *
      * @return body
      */
     public String getBody() {
@@ -54,6 +57,7 @@ public class ApiGatewayResponse {
 
     /**
      * get http headers
+     *
      * @return headers
      */
     public Map<String, String> getHeaders() {
@@ -95,6 +99,7 @@ public class ApiGatewayResponse {
 
         /**
          * set status code
+         *
          * @param statusCode
          * @return this
          */

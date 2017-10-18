@@ -12,6 +12,7 @@ import java.util.Map;
 
 /**
  * PostHandler class
+ *
  * @author dbernstein
  */
 public class PostHandler implements RequestHandler<Map<String, Object>, ApiGatewayResponse> {
@@ -26,9 +27,9 @@ public class PostHandler implements RequestHandler<Map<String, Object>, ApiGatew
         headers.put("X-Powered-By", "AWS Lambda & Serverless");
         headers.put("Content-Type", "application/json");
         return ApiGatewayResponse.builder()
-                .setStatusCode(200)
-                .setObjectBody(responseBody)
-                .setHeaders(headers)
-                .build();
+            .setStatusCode(200)
+            .setObjectBody(responseBody)
+            .setHeaders(headers)
+            .build();
     }
 }

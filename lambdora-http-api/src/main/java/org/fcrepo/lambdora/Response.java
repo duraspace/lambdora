@@ -9,6 +9,7 @@ public class Response {
 
     /**
      * constructor
+     *
      * @param message
      */
     public Response(final String message) {
@@ -17,6 +18,7 @@ public class Response {
 
     /**
      * get message member
+     *
      * @return message
      */
     public String getMessage() {

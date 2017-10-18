@@ -26,14 +26,14 @@ public class GetHandler implements RequestHandler<Map<String, Object>, ApiGatewa
         final String relativePath = (String) ((Map<String, Object>) input.get("pathParameters")).get("thepath");
 
         final Response responseBody = new Response("GET: Welcome to Lambdora, the current time is " + new Date() +
-                ". path=" + path + "; relativePath=" + relativePath);
+            ". path=" + path + "; relativePath=" + relativePath);
         final Map<String, String> headers = new HashMap<>();
         headers.put("X-Powered-By", "AWS Lambda & Serverless");
         headers.put("Content-Type", "application/json");
         return ApiGatewayResponse.builder()
-                .setStatusCode(200)
-                .setObjectBody(responseBody)
-                .setHeaders(headers)
-                .build();
+            .setStatusCode(200)
+            .setObjectBody(responseBody)
+            .setHeaders(headers)
+            .build();
     }
 }

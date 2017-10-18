@@ -1,15 +1,22 @@
-allprojects {
-    version '0.1.0-SNAPSHOT'
-    group 'org.fcrepo.lambdora'
+version '0.1.0-SNAPSHOT'
+group 'org.fcrepo.lambdora'
+
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "net.ltgt.gradle:gradle-errorprone-plugin:0.0.13"
+    }
 }
-
-
 
 subprojects {
 
     apply plugin: 'java'
     apply plugin: 'checkstyle'
-
+    apply plugin: 'net.ltgt.errorprone'
 
     checkstyle {
         configFile = rootProject.file('config/checkstyle/checkstyle.xml')

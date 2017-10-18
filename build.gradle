@@ -18,6 +18,9 @@ subprojects {
     apply plugin: 'checkstyle'
     apply plugin: 'net.ltgt.errorprone'
 
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
     checkstyle {
         configFile = rootProject.file('config/checkstyle/checkstyle.xml')
         configProperties = [
@@ -28,15 +31,32 @@ subprojects {
     }
 
     dependencies {
-        testCompile([group: 'junit', name: 'junit', version: '4.12'])
+        testCompile([group: 'junit', name: 'junit', version: '4.12'],
+                    [group: 'com.amazonaws', name: 'DynamoDBLocal', version: '1.11.0'])
     }
 
     repositories {
         mavenCentral()
+        maven {
+            url 'http://dynamodb-local.s3-website-us-west-2.amazonaws.com/release'
+        }
+
     }
 
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+    task copyNativeDeps(type: Copy) {
+        from (configurations.testCompile) {
+            include "*.dylib"
+            include "*.so"
+            include "*.dll"
+        }
+        into 'build/libs'
+    }
+
+    test.dependsOn copyNativeDeps
+    test.doFirst {
+        systemProperty "java.library.path", 'build/libs'
+    }
+
 }
 
 

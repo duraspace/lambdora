@@ -4,6 +4,7 @@ gradlew*
 gradle/
 build
 /bin/
+*/out
 /.settings/
 /.idea/
 .project

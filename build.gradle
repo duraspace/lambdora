@@ -34,7 +34,9 @@ subprojects {
 
     dependencies {
         testCompile([group: 'junit', name: 'junit', version: '4.12'],
-                    [group: 'com.amazonaws', name: 'DynamoDBLocal', version: '1.11.0'])
+                    [group: 'com.amazonaws', name: 'DynamoDBLocal', version: '1.11.0'],
+                    [group: 'org.mockito', name: 'mockito-core', version: '2.+']
+        )
     }
 
     repositories {
@@ -42,7 +44,7 @@ subprojects {
         maven {
             url 'http://dynamodb-local.s3-website-us-west-2.amazonaws.com/release'
         }
-
+        repositories { jcenter() }
     }
 
     task copyNativeDeps(type: Copy) {
@@ -74,6 +76,7 @@ project(':lambdora-http-api') {
         )
     }
 
+
     // http://docs.aws.amazon.com/lambda/latest/dg/create-deployment-pkg-zip-java.html
     task buildZip(type: Zip) {
         baseName = "${project.name}"
@@ -90,6 +93,12 @@ project(':lambdora-http-api') {
 project(':lambdora-db') {
     dependencies {
         compile project(':lambdora-common')
+    }
+}
+
+project(':lambdora-service') {
+    dependencies {
+        compile project(':lambdora-db')
     }
 }
 

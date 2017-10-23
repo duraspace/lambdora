@@ -63,7 +63,6 @@ subprojects {
 
 }
 
-
 project(':lambdora-http-api') {
     dependencies {
         compile project(':lambdora-db')
@@ -95,6 +94,7 @@ project(':lambdora-http-api') {
 
 project(':lambdora-db') {
     dependencies {
+        compile group: 'com.amazonaws', name: 'aws-java-sdk-dynamodb', version: '1.11.218'
         compile project(':lambdora-common')
     }
 }

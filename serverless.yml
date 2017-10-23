@@ -22,4 +22,21 @@ functions:
       - http:
           path: /rest/{thepath+}
           method: post
+
+# Creates DynamoDB table named "objectTable" with primary key of "subject"
+resources:
+  Resources:
+    usersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: objectTable
+        AttributeDefinitions:
+          - AttributeName: subject
+            AttributeType: S
+        KeySchema:
+          - AttributeName: subject
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
  

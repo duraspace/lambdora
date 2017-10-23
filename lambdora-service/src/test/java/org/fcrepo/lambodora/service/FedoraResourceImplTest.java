@@ -26,8 +26,11 @@ public class FedoraResourceImplTest {
     }
 
     @Test
-    public void testConstructor() {
-        final FedoraResourceImpl resource = new FedoraResourceImpl();
-        assertNotNull(resource);
+    public void test() {
+        final String path = "path";
+        final FedoraResourceImpl resource = new FedoraResourceImpl(path);
+        assertNotNull(resource.getPath());
+        assertNotNull(resource.getTriples());
+
     }
 }

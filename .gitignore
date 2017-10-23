@@ -7,7 +7,7 @@ build
 */out
 /.settings/
 /.idea/
-.iml
+*.iml
 .project
 .classpath
 target

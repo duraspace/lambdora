@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/duraspace/lambdora.svg?token=1aN7YscbAr4UyMcKVQzg&branch=master)](https://travis-ci.com/duraspace/lambdora)
+
 # Lambdora
 A serverless implementation of the Fedora Repository API on AWS. Uses the following technologies:
 * [Serverless.com](https://serverless.com/) toolkit

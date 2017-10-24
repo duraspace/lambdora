@@ -15,13 +15,14 @@ public class JerseyRequestHandler implements RequestHandler<AwsProxyRequest,AwsP
     private JerseyLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler;
 
     /**
-     *
+     * Initialise the request handler with the AWS Proxy
      */
     public JerseyRequestHandler() {
         handler = JerseyLambdaContainerHandler.getAwsProxyHandler(new JerseyApplication());
     }
 
     /**
+     * Mpas requests through AWS to Jersey endpoints
      *
      * @param awsProxyRequest
      * @param context

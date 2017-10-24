@@ -10,16 +10,23 @@ package:
   artifact: lambdora-http-api/build/distributions/lambdora-http-api-0.1.0-SNAPSHOT.zip
 
 functions:
-  ldpGet:
-    handler: org.fcrepo.lambdora.ldp.GetHandler
+  ldpJersey:
+    handler: org.fcrepo.lambdora.ldp.JerseyRequestHandler
     events:
       - http:
           path: /rest/{thepath+}
-          method: get
-  ldpPost:
-    handler: org.fcrepo.lambdora.ldp.PostHandler
-    events:
-      - http:
-          path: /rest/{thepath+}
-          method: post
+          method: any
+
+#  ldpGet:
+#    handler: org.fcrepo.lambdora.ldp.GetHandler
+#    events:
+#      - http:
+#          path: /rest/{thepath+}
+#          method: get
+#  ldpPost:
+#    handler: org.fcrepo.lambdora.ldp.PostHandler
+#    events:
+#      - http:
+#          path: /rest/{thepath+}
+#          method: post
  

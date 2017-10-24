@@ -6,6 +6,7 @@ buildscript {
     }
     dependencies {
         classpath "net.ltgt.gradle:gradle-errorprone-plugin:0.0.13"
+        classpath "net.ltgt.gradle:gradle-apt-plugin:0.12"
     }
 }
 
@@ -19,6 +20,8 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'checkstyle'
     apply plugin: 'net.ltgt.errorprone'
+    apply plugin: 'net.ltgt.apt'
+    apply plugin: 'idea'
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
@@ -61,6 +64,10 @@ subprojects {
         systemProperty "java.library.path", 'build/libs'
     }
 
+    //ensures that idea sees the generated source files in the src classpath
+    def generated = new File(buildDir, "generated/source/apt/main")
+    idea.module.sourceDirs += generated
+
 }
 
 project(':lambdora-http-api') {
@@ -98,8 +105,10 @@ project(':lambdora-service') {
             'com.amazonaws:aws-java-sdk-dynamodb:1.11.218',
             'org.apache.jena:jena-core:3.4.0',
             'org.apache.jena:jena-iri:3.4.0',
-            'org.apache.jena:jena-arq:3.4.0'
+            'org.apache.jena:jena-arq:3.4.0',
+            'com.google.dagger:dagger:2.12'
         )
+        apt 'com.google.dagger:dagger-compiler:2.12'
     }
 }
 

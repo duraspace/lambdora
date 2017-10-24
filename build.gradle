@@ -65,7 +65,6 @@ subprojects {
 
 project(':lambdora-http-api') {
     dependencies {
-        compile project(':lambdora-db')
         compile project(':lambdora-service')
         compile(
                 'com.amazonaws:aws-lambda-java-core:1.1.0',
@@ -92,17 +91,11 @@ project(':lambdora-http-api') {
     build.dependsOn buildZip
 }
 
-project(':lambdora-db') {
-    dependencies {
-        compile group: 'com.amazonaws', name: 'aws-java-sdk-dynamodb', version: '1.11.218'
-        compile project(':lambdora-common')
-    }
-}
-
 project(':lambdora-service') {
     dependencies {
-        compile project(':lambdora-db')
+        compile project(':lambdora-common')
         compile (
+            'com.amazonaws:aws-java-sdk-dynamodb:1.11.218',
             'org.apache.jena:jena-core:3.4.0',
             'org.apache.jena:jena-iri:3.4.0',
             'org.apache.jena:jena-arq:3.4.0'

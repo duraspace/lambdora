@@ -11,7 +11,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
  * @author bbranan
  */
 @DynamoDBTable(tableName = "RESOURCE")
-public class Resource {
+public class ResourceTriple {
 
     @DynamoDBHashKey
     private String triple;
@@ -31,7 +31,7 @@ public class Resource {
     /**
      * Create an empty resource
      */
-    public Resource() {
+    public ResourceTriple() {
     }
 
     /**
@@ -43,11 +43,11 @@ public class Resource {
      * @param predicate rdf predicate
      * @param object    rdf object
      */
-    public Resource(final String triple,
-                    final String name,
-                    final String subject,
-                    final String predicate,
-                    final String object) {
+    public ResourceTriple(final String triple,
+                          final String name,
+                          final String subject,
+                          final String predicate,
+                          final String object) {
         this.triple = triple;
         this.name = name;
         this.subject = subject;

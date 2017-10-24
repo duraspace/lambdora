@@ -77,6 +77,7 @@ project(':lambdora-http-api') {
                 'org.apache.httpcomponents:httpcore:4.4.8',
                 'org.apache.httpcomponents:httpmime:4.5.3',
                 'org.apache.velocity:velocity:1.7',
+                'org.glassfish.jersey.media:jersey-media-multipart:2.24',
                 'javax.ws.rs:javax.ws.rs-api:2.1'
         )
     }

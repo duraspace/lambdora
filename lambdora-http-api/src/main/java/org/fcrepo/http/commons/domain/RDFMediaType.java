@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fcrepo.lambdora.ldp.domain;
+package org.fcrepo.http.commons.domain;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Variant;

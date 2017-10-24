@@ -71,11 +71,11 @@ project(':lambdora-http-api') {
         compile(
                 'com.amazonaws:aws-lambda-java-core:1.1.0',
                 'com.amazonaws:aws-lambda-java-log4j:1.0.0',
-                'com.fasterxml.jackson.core:jackson-core:2.8.5',
-                'com.fasterxml.jackson.core:jackson-databind:2.8.5',
-                'com.fasterxml.jackson.core:jackson-annotations:2.8.5',
-                'org.apache.httpcomponents:httpcore:4.3.2',
-                'org.apache.httpcomponents:httpmime:4.3.2',
+                'com.fasterxml.jackson.core:jackson-core:2.9.2',
+                'com.fasterxml.jackson.core:jackson-databind:2.9.2',
+                'com.fasterxml.jackson.core:jackson-annotations:2.9.2',
+                'org.apache.httpcomponents:httpcore:4.4.8',
+                'org.apache.httpcomponents:httpmime:4.5.3',
                 'javax.ws.rs:javax.ws.rs-api:2.1'
         )
     }
@@ -103,9 +103,9 @@ project(':lambdora-service') {
     dependencies {
         compile project(':lambdora-db')
         compile (
-            'org.apache.jena:jena-core:3.1.1',
-            'org.apache.jena:jena-iri:3.1.1',
-            'org.apache.jena:jena-arq:3.1.1'
+            'org.apache.jena:jena-core:3.4.0',
+            'org.apache.jena:jena-iri:3.4.0',
+            'org.apache.jena:jena-arq:3.4.0'
         )
     }
 }

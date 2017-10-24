@@ -34,7 +34,7 @@ import static org.fcrepo.lambdora.ldp.domain.RDFMediaType.TURTLE_X;
  * @author gtriggs
  */
 @Path("/{path: .*}")
-public class LamdoraLdp {
+public class LambdoraLdp {
     @PathParam("path")
     protected String externalPath;
 
@@ -47,7 +47,7 @@ public class LamdoraLdp {
     /**
      * Default JAX-RS entry point
      */
-    public LamdoraLdp() {
+    public LambdoraLdp() {
         super();
     }
 

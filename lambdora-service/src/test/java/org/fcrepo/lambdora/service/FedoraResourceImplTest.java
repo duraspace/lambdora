@@ -1,6 +1,5 @@
-package org.fcrepo.lambodora.service;
+package org.fcrepo.lambdora.service;
 
-import org.fcrepo.lambdora.service.FedoraResourceImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,7 +11,6 @@ import static org.junit.Assert.assertNotNull;
  *
  * @author dbernstein
  */
-
 public class FedoraResourceImplTest {
 
     @Before

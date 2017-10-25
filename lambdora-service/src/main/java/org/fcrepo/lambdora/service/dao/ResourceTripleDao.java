@@ -1,8 +1,8 @@
-package org.fcrepo.lambdora.dao;
+package org.fcrepo.lambdora.service.dao;
 
 import java.util.List;
 
-import org.fcrepo.lambdora.db.ResourceTriple;
+import org.fcrepo.lambdora.service.db.ResourceTriple;
 
 /**
  * Data access object for ResourceTriples

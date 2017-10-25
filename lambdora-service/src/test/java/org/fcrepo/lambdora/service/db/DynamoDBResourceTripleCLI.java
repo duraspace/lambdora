@@ -1,10 +1,10 @@
-package org.fcrepo.lambdora.db;
+package org.fcrepo.lambdora.service.db;
 
 
 import java.util.List;
 
-import org.fcrepo.lambdora.dao.DynamoDBResourceTripleDao;
-import org.fcrepo.lambdora.dao.ResourceTripleDao;
+import org.fcrepo.lambdora.service.dao.DynamoDBResourceTripleDao;
+import org.fcrepo.lambdora.service.dao.ResourceTripleDao;
 
 /**
  * A test CLI class for ResourceTriple

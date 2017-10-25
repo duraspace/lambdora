@@ -1,4 +1,4 @@
-package org.fcrepo.lambdora.dao;
+package org.fcrepo.lambdora.service.dao;
 
 import java.util.HashMap;
 import java.util.List;
@@ -8,8 +8,8 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import org.fcrepo.lambdora.db.DynamoDBManager;
-import org.fcrepo.lambdora.db.ResourceTriple;
+import org.fcrepo.lambdora.service.db.DynamoDBManager;
+import org.fcrepo.lambdora.service.db.ResourceTriple;
 
 /**
  * Allows interaction with ResourceTriples stored in DynamoDB

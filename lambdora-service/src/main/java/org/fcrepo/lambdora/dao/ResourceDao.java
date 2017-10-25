@@ -1,4 +1,4 @@
-package org.fcrepo.lambdora.service.dao;
+package org.fcrepo.lambdora.dao;
 
 /**
  * A Resource data access object interface.

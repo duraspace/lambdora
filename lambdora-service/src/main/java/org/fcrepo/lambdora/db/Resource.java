@@ -1,4 +1,4 @@
-package org.fcrepo.lambdora.service.db;
+package org.fcrepo.lambdora.db;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;

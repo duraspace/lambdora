@@ -1,7 +1,7 @@
 package org.fcrepo.lambdora.service.api;
 
 /**
- * FedoraBinary
+ * Represents a binary Fedora resource.
  *
  * @author dbernstein
  */

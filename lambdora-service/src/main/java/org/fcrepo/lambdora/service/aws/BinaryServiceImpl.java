@@ -9,6 +9,7 @@ import org.fcrepo.lambdora.service.api.BinaryService;
  * @author dbernstein
  */
 public class BinaryServiceImpl implements BinaryService {
+
     /**
      * Default constructor
      */

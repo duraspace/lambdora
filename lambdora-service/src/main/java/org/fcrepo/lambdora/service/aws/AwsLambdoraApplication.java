@@ -4,7 +4,7 @@ import dagger.Component;
 import org.fcrepo.lambdora.service.api.LambdoraApplication;
 
 /**
- * AwsLambdoraApplication
+ * A "concrete" entry point for an AWS-based LambdoraApplication
  *
  * @author dbernstein
  */

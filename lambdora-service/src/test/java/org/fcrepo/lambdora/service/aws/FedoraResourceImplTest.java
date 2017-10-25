@@ -23,6 +23,9 @@ public class FedoraResourceImplTest {
 
     }
 
+    /**
+     * An simple smoke test.
+     */
     @Test
     public void test() {
         final String path = "path";

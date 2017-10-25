@@ -4,7 +4,7 @@ import org.fcrepo.lambdora.service.api.Container;
 import org.fcrepo.lambdora.service.api.ContainerService;
 
 /**
- * Provides access to instances of the FedoraResource
+ * A concrete AWS-based implementation of ContainerService.
  *
  * @author dbernstein
  */

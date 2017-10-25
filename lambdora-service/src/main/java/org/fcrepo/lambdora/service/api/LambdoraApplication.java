@@ -1,7 +1,9 @@
 package org.fcrepo.lambdora.service.api;
 
 /**
- * LambdoraServiceApplication
+ * This interfaces defines the root entry point for accessing
+ * Lambdora application resources (from the dependency-injection
+ * framework).
  *
  * @author dbernstein
  */

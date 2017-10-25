@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.stream.Stream;
 
 /**
- * FedoraResourceImpl
+ * An abstract base class for FedoraResource implementations.
  *
  * @author dbernstein
  */

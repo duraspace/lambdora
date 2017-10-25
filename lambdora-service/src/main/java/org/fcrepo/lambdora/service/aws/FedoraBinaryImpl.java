@@ -3,7 +3,7 @@ package org.fcrepo.lambdora.service.aws;
 import org.fcrepo.lambdora.service.api.FedoraBinary;
 
 /**
- * ContainerImpl
+ * AWS-based concrete implementation of the FedoraBinary interface.
  *
  * @author dbernstein
  */

@@ -7,7 +7,7 @@ import org.fcrepo.lambdora.service.api.ContainerService;
 import org.fcrepo.lambdora.service.api.ServiceModule;
 
 /**
- * DynamoDbServiceModule is a factory for api
+ * A concrete AWS-based implementation of the ServiceModule interface.
  *
  * @author dbernstein
  */

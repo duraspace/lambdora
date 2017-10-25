@@ -8,12 +8,15 @@ import org.junit.Test;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * LambdoraServiceApplicationTest
+ * AwsLambdoraApplicationTest
  *
  * @author dbernstein
  */
 public class AwsLambdoraApplicationTest {
 
+    /**
+     * A simple smoke test.
+     */
     @Test
     public void test() {
         final LambdoraApplication lsa = DaggerAwsLambdoraApplication.builder()

@@ -1,7 +1,7 @@
 package org.fcrepo.lambdora.service.api;
 
 /**
- * Container
+ * A Fedora Container interface
  *
  * @author dbernstein
  */

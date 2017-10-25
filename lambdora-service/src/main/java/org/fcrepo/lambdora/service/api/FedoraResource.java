@@ -5,7 +5,7 @@ import org.apache.jena.graph.Triple;
 import java.util.stream.Stream;
 
 /**
- * FedoraResource
+ * A base interface for all Fedora resources.
  *
  * @author dbernstein
  */

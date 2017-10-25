@@ -8,6 +8,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
+ * DynamoDbTest - exemplifies how to bring up and down an embedded dynamodb instance.
+ *
  * @author dbernstein
  */
 public class DynamoDbTest {

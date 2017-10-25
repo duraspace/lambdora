@@ -3,7 +3,7 @@ package org.fcrepo.lambdora.service.aws;
 import org.fcrepo.lambdora.service.api.Container;
 
 /**
- * ContainerImpl
+ * AWS-based concrete implementation of the Container interface.
  *
  * @author dbernstein
  */

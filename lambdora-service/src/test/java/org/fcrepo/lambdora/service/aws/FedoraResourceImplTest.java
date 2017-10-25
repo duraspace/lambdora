@@ -1,4 +1,4 @@
-package org.fcrepo.lambdora.service;
+package org.fcrepo.lambdora.service.aws;
 
 import org.junit.After;
 import org.junit.Before;
@@ -7,7 +7,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * org.fcrepo.lambodora.service.FedoraResourceImplTest
+ * FedoraResourceImplTest
  *
  * @author dbernstein
  */
@@ -23,10 +23,13 @@ public class FedoraResourceImplTest {
 
     }
 
+    /**
+     * An simple smoke test.
+     */
     @Test
     public void test() {
         final String path = "path";
-        final FedoraResourceImpl resource = new FedoraResourceImpl(path);
+        final FedoraResourceImpl resource = new FedoraResourceImpl(path){};
         assertNotNull(resource.getPath());
         assertNotNull(resource.getTriples());
 

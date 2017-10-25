@@ -10,6 +10,11 @@ buildscript {
     }
 }
 
+ext {
+    jenaVersion = '3.4.0'
+    daggerVersion = '2.12'
+}
+
 allprojects {
     group 'org.fcrepo.lambdora'
     version '0.1.0-SNAPSHOT'
@@ -37,8 +42,8 @@ subprojects {
 
     dependencies {
         testCompile([group: 'junit', name: 'junit', version: '4.12'],
-                    [group: 'com.amazonaws', name: 'DynamoDBLocal', version: '1.11.0'],
-                    [group: 'org.mockito', name: 'mockito-core', version: '2.+']
+                [group: 'com.amazonaws', name: 'DynamoDBLocal', version: '1.11.0'],
+                [group: 'org.mockito', name: 'mockito-core', version: '2.+']
         )
     }
 
@@ -51,7 +56,7 @@ subprojects {
     }
 
     task copyNativeDeps(type: Copy) {
-        from (configurations.testCompile) {
+        from(configurations.testCompile) {
             include "*.dylib"
             include "*.so"
             include "*.dll"
@@ -105,14 +110,15 @@ project(':lambdora-http-api') {
 project(':lambdora-service') {
     dependencies {
         compile project(':lambdora-common')
-        compile (
-            'com.amazonaws:aws-java-sdk-dynamodb:1.11.218',
-            'org.apache.jena:jena-core:3.4.0',
-            'org.apache.jena:jena-iri:3.4.0',
-            'org.apache.jena:jena-arq:3.4.0',
-            'com.google.dagger:dagger:2.12'
+        compile(
+                "org.apache.jena:jena-core:${jenaVersion}",
+                "org.apache.jena:jena-iri:${jenaVersion}",
+                "org.apache.jena:jena-arq:${jenaVersion}",
+                'com.amazonaws:aws-java-sdk-dynamodb:1.11.218',
+                "com.google.dagger:dagger:${daggerVersion}"
         )
-        apt 'com.google.dagger:dagger-compiler:2.12'
+
+        apt "com.google.dagger:dagger-compiler:${daggerVersion}"
     }
 }
 

@@ -1,4 +1,4 @@
-package org.fcrepo.lambdora.service;
+package org.fcrepo.lambdora.service.api;
 
 /**
  * Generic Service interface for creation and retrieval of

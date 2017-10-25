@@ -59,7 +59,7 @@ public class LambdoraLdp {
     }
 
     /**
-     * Retrieve the node profile
+     * Retrieve the repository resource profile
      *
      * @param rangeValue the range value
      * @return a binary or the triples for the specified node

@@ -7,7 +7,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 
 /**
- * JerseyRequestHandler class
+ * AWS Request Handler to proxy requests through to Jersey
  *
  * @author gtriggs
  */

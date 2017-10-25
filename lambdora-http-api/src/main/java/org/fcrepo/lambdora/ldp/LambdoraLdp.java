@@ -5,7 +5,6 @@ import org.fcrepo.kernel.api.exception.InvalidChecksumException;
 import org.fcrepo.kernel.api.exception.MalformedRdfException;
 import org.glassfish.jersey.media.multipart.ContentDisposition;
 
-import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -19,18 +18,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
-import static javax.ws.rs.core.HttpHeaders.ACCEPT;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_DISPOSITION;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.HttpHeaders.LINK;
-import static javax.ws.rs.core.MediaType.TEXT_HTML;
 import static javax.ws.rs.core.MediaType.WILDCARD;
 import static javax.ws.rs.core.Response.ok;
-import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 import static org.fcrepo.http.commons.domain.RDFMediaType.JSON_LD;
 import static org.fcrepo.http.commons.domain.RDFMediaType.N3_WITH_CHARSET;
 import static org.fcrepo.http.commons.domain.RDFMediaType.N3_ALT2_WITH_CHARSET;
@@ -42,7 +36,7 @@ import static org.fcrepo.http.commons.domain.RDFMediaType.TURTLE_WITH_CHARSET;
 import static org.fcrepo.http.commons.domain.RDFMediaType.TURTLE_X;
 
 /**
- * LambdoraLdp class
+ * Main entry points for Jersey request handling
  *
  * @author gtriggs
  */
@@ -115,27 +109,5 @@ public class LambdoraLdp {
 
         return ok("POST: Welcome to Lambdora. The current time is " + new Date() +
                 ". path=" + externalPath).build();
-    }
-
-    private int getChildrenLimit() {
-        final List<String> acceptHeaders = headers.getRequestHeader(ACCEPT);
-        if (acceptHeaders != null && acceptHeaders.size() > 0) {
-            final List<String> accept = Arrays.asList(acceptHeaders.get(0).split(","));
-            if (accept.contains(TEXT_HTML)) {
-                // Magic number '100' is tied to common-metadata.vsl display of ellipses
-                return 100;
-            }
-        }
-
-        final List<String> limits = headers.getRequestHeader("Limit");
-        if (null != limits && limits.size() > 0) {
-            try {
-                return Integer.parseInt(limits.get(0));
-
-            } catch (final NumberFormatException e) {
-                throw new ClientErrorException("Invalid 'Limit' header value: " + limits.get(0), SC_BAD_REQUEST, e);
-            }
-        }
-        return -1;
     }
 }

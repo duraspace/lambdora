@@ -17,52 +17,55 @@ functions:
           path: /rest/{thepath+}
           method: any
 
-# Creates DynamoDB table named "objectTable" with primary key of "name"
+# Creates DynamoDB table named "RESOURCE_TRIPLE" with primary, composite key of "resource_name" and "rdf_triple"
+# This table also has two indexes (see comments below)
 resources:
   Resources:
-    resourceTable:
+    resourceTripleTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: RESOURCE
+        TableName: RESOURCE_TRIPLE
         AttributeDefinitions:
-          - AttributeName: name
+          - AttributeName: resource_name
             AttributeType: S
-          - AttributeName: triple
+          - AttributeName: rdf_triple
             AttributeType: S
-          - AttributeName: predicate
+          - AttributeName: rdf_predicate
             AttributeType: S
-          - AttributeName: object
+          - AttributeName: rdf_object
             AttributeType: S
         KeySchema:
-          - AttributeName: name
+          - AttributeName: resource_name
             KeyType: HASH
-          - AttributeName: triple
+          - AttributeName: rdf_triple
             KeyType: RANGE
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         LocalSecondaryIndexes:
+          # Index providing a secondary sort on rdf_predicate to allow querying by resource_name + rdf_predicate
           - IndexName: predicateIndex
             KeySchema:
-              - AttributeName: name
+              - AttributeName: resource_name
                 KeyType: HASH
-              - AttributeName: predicate
+              - AttributeName: rdf_predicate
                 KeyType: RANGE
             Projection:
               NonKeyAttributes:
-                - subject
-                - object
+                - rdf_subject
+                - rdf_object
               ProjectionType: INCLUDE
         GlobalSecondaryIndexes:
+          # Index providing ability to query on referenced rdf_object and/or rdf_predicate
           - IndexName: objectIndex
             KeySchema:
-              - AttributeName: object
+              - AttributeName: rdf_object
                 KeyType: HASH
-              - AttributeName: predicate
+              - AttributeName: rdf_predicate
                 KeyType: RANGE
             Projection:
               NonKeyAttributes:
-                - subject
+                - rdf_subject
               ProjectionType: INCLUDE
             ProvisionedThroughput:
               ReadCapacityUnits: 1

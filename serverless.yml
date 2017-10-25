@@ -20,16 +20,50 @@ functions:
 # Creates DynamoDB table named "objectTable" with primary key of "name"
 resources:
   Resources:
-    usersTable:
+    resourceTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: objectTable
+        TableName: RESOURCE
         AttributeDefinitions:
           - AttributeName: name
+            AttributeType: S
+          - AttributeName: triple
+            AttributeType: S
+          - AttributeName: predicate
+            AttributeType: S
+          - AttributeName: object
             AttributeType: S
         KeySchema:
           - AttributeName: name
             KeyType: HASH
+          - AttributeName: triple
+            KeyType: RANGE
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
+        LocalSecondaryIndexes:
+          - IndexName: predicateIndex
+            KeySchema:
+              - AttributeName: name
+                KeyType: HASH
+              - AttributeName: predicate
+                KeyType: RANGE
+            Projection:
+              NonKeyAttributes:
+                - subject
+                - object
+              ProjectionType: INCLUDE
+        GlobalSecondaryIndexes:
+          - IndexName: objectIndex
+            KeySchema:
+              - AttributeName: object
+                KeyType: HASH
+              - AttributeName: predicate
+                KeyType: RANGE
+            Projection:
+              NonKeyAttributes:
+                - subject
+              ProjectionType: INCLUDE
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1

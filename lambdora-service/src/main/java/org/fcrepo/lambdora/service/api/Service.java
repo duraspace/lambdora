@@ -1,5 +1,7 @@
 package org.fcrepo.lambdora.service.api;
 
+import java.net.URI;
+
 /**
  * Generic Service interface for creation and retrieval of
  * resources.
@@ -11,24 +13,24 @@ public interface Service<T> {
     /**
      * Returns true if exists
      *
-     * @param path
+     * @param resourceName
      * @return
      */
-    boolean exists(final String path);
+    boolean exists(final URI resourceName);
 
     /**
      * Returns resource if exists otherwise null.
      *
-     * @param path
+     * @param resourceName
      * @return
      */
-    T get(final String path);
+    T get(final URI resourceName);
 
     /**
      * Creates resource
      *
-     * @param path
+     * @param resourceName
      * @return
      */
-    T create(final String path);
+    T create(final URI resourceName);
 }

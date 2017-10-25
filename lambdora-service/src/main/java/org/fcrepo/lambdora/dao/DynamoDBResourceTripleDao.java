@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import org.fcrepo.lambdora.db.DynamoDBManager;
@@ -23,6 +24,23 @@ public class DynamoDBResourceTripleDao implements ResourceTripleDao {
 
     private static volatile DynamoDBResourceTripleDao instance;
     private static final DynamoDBMapper mapper = DynamoDBManager.getMapper();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addResourceTriple(final ResourceTriple triple) {
+        mapper.save(triple, DynamoDBMapperConfig.SaveBehavior.CLOBBER.config());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addResourceTriple(final String resourceName, final String rdfTriple, final String rdfSubject,
+                                  final String rdfPredicate, final String rdfObject) {
+        addResourceTriple(new ResourceTriple(resourceName, rdfTriple, rdfSubject, rdfPredicate, rdfObject));
+    }
 
     /**
      * Retrieve and instance of this DAO
@@ -44,11 +62,11 @@ public class DynamoDBResourceTripleDao implements ResourceTripleDao {
      * {@inheritDoc}
      */
     @Override
-    public List<ResourceTriple> findByObject(final String object) {
+    public List<ResourceTriple> findByObject(final String rdfObject) {
         final Map<String, AttributeValue> expressionAV = new HashMap<>();
-        expressionAV.put(":expVal1", new AttributeValue().withS(object));
+        expressionAV.put(":expVal1", new AttributeValue().withS(rdfObject));
 
-        final String condition = "object = :expVal1";
+        final String condition = "rdf_object = :expVal1";
         return executeFind(expressionAV, OBJECT_INDEX, false, condition);
     }
 
@@ -56,13 +74,13 @@ public class DynamoDBResourceTripleDao implements ResourceTripleDao {
      * {@inheritDoc}
      */
     @Override
-    public List<ResourceTriple> findByObjectAndPredicate(final String object,
-                                                         final String predicate) {
+    public List<ResourceTriple> findByObjectAndPredicate(final String rdfObject,
+                                                         final String rdfPredicate) {
         final Map<String, AttributeValue> expressionAV = new HashMap<>();
-        expressionAV.put(":expVal1", new AttributeValue().withS(object));
-        expressionAV.put(":expVal2", new AttributeValue().withS(predicate));
+        expressionAV.put(":expVal1", new AttributeValue().withS(rdfObject));
+        expressionAV.put(":expVal2", new AttributeValue().withS(rdfPredicate));
 
-        final String condition = "object = :expVal1 AND predicate = :expVal2";
+        final String condition = "rdf_object = :expVal1 AND rdf_predicate = :expVal2";
         return executeFind(expressionAV, OBJECT_INDEX, false, condition);
     }
 
@@ -70,11 +88,11 @@ public class DynamoDBResourceTripleDao implements ResourceTripleDao {
      * {@inheritDoc}
      */
     @Override
-    public List<ResourceTriple> findByName(final String name) {
+    public List<ResourceTriple> findByResourceName(final String resourceName) {
         final Map<String, AttributeValue> expressionAV = new HashMap<>();
-        expressionAV.put(":expVal1", new AttributeValue().withS(name));
+        expressionAV.put(":expVal1", new AttributeValue().withS(resourceName));
 
-        final  String condition = "name = :expVal1";
+        final  String condition = "resource_name = :expVal1";
         return executeFind(expressionAV, PREDICATE_INDEX, true, condition);
     }
 
@@ -82,13 +100,13 @@ public class DynamoDBResourceTripleDao implements ResourceTripleDao {
      * {@inheritDoc}
      */
     @Override
-    public List<ResourceTriple> findByNameAndPredicate(final String name,
-                                                       final String predicate) {
+    public List<ResourceTriple> findByResourceNameAndPredicate(final String resourceName,
+                                                               final String rdfPredicate) {
         final Map<String, AttributeValue> expressionAV = new HashMap<>();
-        expressionAV.put(":expVal1", new AttributeValue().withS(name));
-        expressionAV.put(":expVal2", new AttributeValue().withS(predicate));
+        expressionAV.put(":expVal1", new AttributeValue().withS(resourceName));
+        expressionAV.put(":expVal2", new AttributeValue().withS(rdfPredicate));
 
-        final String condition = "name = :expVal1 AND predicate = :expVal2";
+        final String condition = "resource_name = :expVal1 AND rdf_predicate = :expVal2";
         return executeFind(expressionAV, PREDICATE_INDEX, true, condition);
     }
 

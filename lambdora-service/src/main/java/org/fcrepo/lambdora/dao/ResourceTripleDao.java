@@ -13,35 +13,52 @@ import org.fcrepo.lambdora.db.ResourceTriple;
 public interface ResourceTripleDao {
 
     /**
+     * Add a new ResourceTriple to the database
+     * @param triple ResourceTriple
+     */
+    public void addResourceTriple(ResourceTriple triple);
+
+    /**
+     * Add a new ResourceTriple to the database
+     * @param resourceName Resource name
+     * @param rdfTriple full triple
+     * @param rdfSubject subject of triple
+     * @param rdfPredicate predicate of triple
+     * @param rdfObject object of triple
+     */
+    public void addResourceTriple(String resourceName, String rdfTriple, String rdfSubject, String rdfPredicate,
+                                  String rdfObject);
+
+    /**
      * Get resource based on the RDF object uri
      *
      * This is an eventually consistent read request
      *
-     * @param object uri
+     * @param rdfObject uri
      */
-    public List<ResourceTriple> findByObject(String object);
+    public List<ResourceTriple> findByObject(String rdfObject);
 
     /**
      * Get resource based on the RDF object uri and predicate
      *
-     * @param object uri
-     * @param predicate predicate
+     * @param rdfObject uri
+     * @param rdfPredicate predicate
      */
-    public List<ResourceTriple> findByObjectAndPredicate(String object, String predicate);
+    public List<ResourceTriple> findByObjectAndPredicate(String rdfObject, String rdfPredicate);
 
     /**
      * Get resource based on the resource name
      *
-     * @param name object
+     * @param resourceName resource name
      */
-    public List<ResourceTriple> findByName(String name);
+    public List<ResourceTriple> findByResourceName(String resourceName);
 
     /**
      * Get resource based on the resource name and predicate
      *
-     * @param name object
-     * @param predicate predicate
+     * @param resourceName resource name
+     * @param rdfPredicate predicate
      */
-    public List<ResourceTriple> findByNameAndPredicate(String name, String predicate);
+    public List<ResourceTriple> findByResourceNameAndPredicate(String resourceName, String rdfPredicate);
 
 }

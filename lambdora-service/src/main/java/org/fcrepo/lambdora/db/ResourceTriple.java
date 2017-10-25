@@ -6,27 +6,19 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 
 /**
- * Defines a DynamoDB data table for a Fedora object resource
+ * Defines a DynamoDB data table for a Fedora resource triples
  *
  * @author bbranan
+ * @author tdonohue
  */
-@DynamoDBTable(tableName = "RESOURCE")
+@DynamoDBTable(tableName = "RESOURCE_TRIPLE")
 public class ResourceTriple {
 
-    @DynamoDBHashKey
-    private String triple;
-
-    @DynamoDBRangeKey
-    private String name;
-
-    @DynamoDBAttribute
-    private String subject;
-
-    @DynamoDBAttribute
-    private String predicate;
-
-    @DynamoDBAttribute
-    private String object;
+    private String resourceName;
+    private String rdfTriple;
+    private String rdfSubject;
+    private String rdfPredicate;
+    private String rdfObject;
 
     /**
      * Create an empty resource
@@ -37,112 +29,127 @@ public class ResourceTriple {
     /**
      * Create a fully defined resource
      *
-     * @param triple    single RDF triple statement
-     * @param name      object name
-     * @param subject   rdf subject
-     * @param predicate rdf predicate
-     * @param object    rdf object
+     * @param resourceName resource name
+     * @param rdfTriple single RDF triple statement
+     * @param rdfSubject rdf subject
+     * @param rdfPredicate rdf predicate
+     * @param rdfObject rdf object
      */
-    public ResourceTriple(final String triple,
-                          final String name,
-                          final String subject,
-                          final String predicate,
-                          final String object) {
-        this.triple = triple;
-        this.name = name;
-        this.subject = subject;
-        this.predicate = predicate;
-        this.object = object;
+    public ResourceTriple(final String resourceName,
+                          final String rdfTriple,
+                          final String rdfSubject,
+                          final String rdfPredicate,
+                          final String rdfObject) {
+        this.resourceName = resourceName;
+        this.rdfTriple = rdfTriple;
+        this.rdfSubject = rdfSubject;
+        this.rdfPredicate = rdfPredicate;
+        this.rdfObject = rdfObject;
     }
 
     /**
-     * Get triple
+     * Get resourceName
      *
-     * @return triple
+     * @return resourceName
      */
-    public String getTriple() {
-        return triple;
+    @DynamoDBHashKey(attributeName = "resource_name")
+    public String getResourceName() {
+        return resourceName;
     }
 
     /**
-     * Set new triple value
+     * Set new resourceName
      *
-     * @param triple
+     * @param resourceName
      */
-    public void setTriple(final String triple) {
-        this.triple = triple;
+    public void setResourceName(final String resourceName) {
+        this.resourceName = resourceName;
     }
 
     /**
-     * Get object name
+     * Get rdfTriple
      *
-     * @return name
+     * @return rdfTriple
      */
-    public String getName() {
-        return name;
+    @DynamoDBRangeKey(attributeName = "rdf_triple")
+    public String getRdfTriple() {
+        return rdfTriple;
     }
 
     /**
-     * Set new object name
+     * Set new rdfTriple value
      *
-     * @param name
+     * @param rdfTriple
      */
-    public void setName(final String name) {
-        this.name = name;
+    public void setRdfTriple(final String rdfTriple) {
+        this.rdfTriple = rdfTriple;
     }
 
     /**
-     * Get rdf subject
+     * Get rdfSubject
      *
-     * @return subject
+     * @return rdfSubject
      */
-    public String getSubject() {
-        return subject;
+    @DynamoDBAttribute(attributeName = "rdf_subject")
+    public String getRdfSubject() {
+        return rdfSubject;
     }
 
     /**
-     * Set rdf subject value
+     * Set rdfSubject value
      *
-     * @param subject
+     * @param rdfSubject
      */
-    public void setSubject(final String subject) {
-        this.subject = subject;
+    public void setRdfSubject(final String rdfSubject) {
+        this.rdfSubject = rdfSubject;
     }
 
     /**
-     * Get rdf predicate
+     * Get rdfPredicate
      *
-     * @return predicate
+     * @return rdfPredicate
      */
-    public String getPredicate() {
-        return predicate;
+    @DynamoDBAttribute(attributeName = "rdf_predicate")
+    public String getRdfPredicate() {
+        return rdfPredicate;
     }
 
     /**
-     * Set rdf predicate value
+     * Set rdfPredicate value
      *
-     * @param predicate
+     * @param rdfPredicate
      */
-    public void setPredicate(final String predicate) {
-        this.predicate = predicate;
+    public void setRdfPredicate(final String rdfPredicate) {
+        this.rdfPredicate = rdfPredicate;
     }
 
     /**
-     * Get rdf object
+     * Get rdfObject
      *
-     * @return object
+     * @return rdfObject
      */
-    public String getObject() {
-        return object;
+    @DynamoDBAttribute(attributeName = "rdf_object")
+    public String getRdfObject() {
+        return rdfObject;
     }
 
     /**
-     * Set rdf object value
+     * Set rdfObject value
      *
-     * @param object
+     * @param rdfObject
      */
-    public void setObject(final String object) {
-        this.object = object;
+    public void setRdfObject(final String rdfObject) {
+        this.rdfObject = rdfObject;
     }
 
+    @Override
+    public String toString() {
+        return "ResourceTriple{" +
+            "resourceName='" + resourceName + '\'' +
+            ", rdfTriple='" + rdfTriple + '\'' +
+            ", rdfSubject='" + rdfSubject + '\'' +
+            ", rdfPredicate='" + rdfPredicate + '\'' +
+            ", rdfObject='" + rdfObject + '\'' +
+            '}';
+    }
 }

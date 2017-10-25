@@ -1,6 +1,7 @@
-package org.fcrepo.lambdora.service;
+package org.fcrepo.lambdora.service.aws;
 
 import org.apache.jena.graph.Triple;
+import org.fcrepo.lambdora.service.api.FedoraResource;
 
 import java.util.ArrayList;
 import java.util.stream.Stream;
@@ -10,7 +11,7 @@ import java.util.stream.Stream;
  *
  * @author dbernstein
  */
-public class FedoraResourceImpl implements FedoraResource {
+public abstract class FedoraResourceImpl implements FedoraResource {
 
     private String path;
 

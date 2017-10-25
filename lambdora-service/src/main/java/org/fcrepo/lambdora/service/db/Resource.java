@@ -1,4 +1,4 @@
-package org.fcrepo.lambdora.db;
+package org.fcrepo.lambdora.service.db;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
@@ -37,11 +37,11 @@ public class Resource {
     /**
      * Create a fully defined resource
      *
-     * @param triple single RDF triple statement
-     * @param name object name
-     * @param subject rdf subject
+     * @param triple    single RDF triple statement
+     * @param name      object name
+     * @param subject   rdf subject
      * @param predicate rdf predicate
-     * @param object rdf object
+     * @param object    rdf object
      */
     public Resource(final String triple,
                     final String name,

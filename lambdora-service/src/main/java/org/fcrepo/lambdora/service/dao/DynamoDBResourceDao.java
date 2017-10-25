@@ -1,4 +1,4 @@
-package org.fcrepo.lambdora.dao;
+package org.fcrepo.lambdora.service.dao;
 
 /**
  * @author bbranan

@@ -1,4 +1,4 @@
-package org.fcrepo.lambdora.service;
+package org.fcrepo.lambdora.service.api;
 
 import org.apache.jena.graph.Triple;
 

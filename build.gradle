@@ -76,11 +76,15 @@ project(':lambdora-http-api') {
         compile(
                 'com.amazonaws:aws-lambda-java-core:1.1.0',
                 'com.amazonaws:aws-lambda-java-log4j:1.0.0',
+                'com.amazonaws.serverless:aws-serverless-java-container-core:0.7',
+                'com.amazonaws.serverless:aws-serverless-java-container-jersey:0.7',
                 'com.fasterxml.jackson.core:jackson-core:2.9.2',
                 'com.fasterxml.jackson.core:jackson-databind:2.9.2',
                 'com.fasterxml.jackson.core:jackson-annotations:2.9.2',
                 'org.apache.httpcomponents:httpcore:4.4.8',
                 'org.apache.httpcomponents:httpmime:4.5.3',
+                'org.apache.velocity:velocity:1.7',
+                'org.glassfish.jersey.media:jersey-media-multipart:2.24',
                 'javax.ws.rs:javax.ws.rs-api:2.1'
         )
     }
@@ -113,5 +117,5 @@ project(':lambdora-service') {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.2.1'
+    gradleVersion = '4.2.1'
 }

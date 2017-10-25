@@ -6,10 +6,12 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
+import org.fcrepo.lambdora.service.db.ResourceTriple;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.jena.rdf.model.ModelFactory.createDefaultModel;
@@ -19,7 +21,7 @@ import static org.apache.jena.riot.RDFLanguages.strLangNTriples;
  * This class provides utilities for converting between n-triple strings and Jena Triples.
  *
  * @author dbernstein
- * @author awoods 
+ * @author awoods
  */
 public class TripleUtil {
 
@@ -79,6 +81,18 @@ public class TripleUtil {
                 // TODO: Log this error
             }
         }
+    }
+
+    /**
+     * Returns a ResourceTriple
+     *
+     * @param identifier
+     * @param t
+     * @return
+     */
+    public static ResourceTriple toResourceTriple(final URI identifier, final Triple t) {
+        return new ResourceTriple(identifier.toString(), fromTriple(t), t.getSubject().toString(),
+            t.getPredicate().toString(), t.getObject().toString());
     }
 
 }

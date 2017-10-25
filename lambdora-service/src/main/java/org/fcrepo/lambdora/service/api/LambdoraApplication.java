@@ -9,14 +9,14 @@ package org.fcrepo.lambdora.service.api;
  */
 public interface LambdoraApplication {
     /**
-     * get handle to a ContainerService
+     * find handle to a ContainerService
      *
      * @return
      */
     ContainerService containerService();
 
     /**
-     * get handle to a BinaryService
+     * find handle to a BinaryService
      *
      * @return
      */

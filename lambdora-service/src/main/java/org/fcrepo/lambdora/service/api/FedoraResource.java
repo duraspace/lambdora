@@ -2,6 +2,7 @@ package org.fcrepo.lambdora.service.api;
 
 import org.apache.jena.graph.Triple;
 
+import java.net.URI;
 import java.util.stream.Stream;
 
 /**
@@ -12,11 +13,11 @@ import java.util.stream.Stream;
 public interface FedoraResource {
 
     /**
-     * Get the path to the resource
+     * Get the internal URI identifier that represents this resource
      *
-     * @return path
+     * @return identifier
      */
-    String getPath();
+    URI getIdentifier();
 
     /**
      * Returns a stream of triples associated with
@@ -25,5 +26,12 @@ public interface FedoraResource {
      * @return stream of triples
      */
     Stream<Triple> getTriples();
+
+    /**
+     * Adds the stream of triples
+     *
+     * @param triples
+     */
+    void updateTriples(Stream<Triple> triples);
 
 }

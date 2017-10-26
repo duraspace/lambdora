@@ -30,16 +30,14 @@ public interface ResourceTripleDao {
                                   String rdfObject);
 
     /**
-     * Get resource based on the RDF object uri
-     *
-     * This is an eventually consistent read request
+     * Get list of triples based on the RDF object uri
      *
      * @param rdfObject uri
      */
     public List<ResourceTriple> findByObject(String rdfObject);
 
     /**
-     * Get resource based on the RDF object uri and predicate
+     * Get list of triples based on the RDF object uri and predicate
      *
      * @param rdfObject uri
      * @param rdfPredicate predicate
@@ -47,14 +45,14 @@ public interface ResourceTripleDao {
     public List<ResourceTriple> findByObjectAndPredicate(String rdfObject, String rdfPredicate);
 
     /**
-     * Get resource based on the resource name
+     * Get list of triples based on the resource name
      *
      * @param resourceName resource name
      */
     public List<ResourceTriple> findByResourceName(String resourceName);
 
     /**
-     * Get resource based on the resource name and predicate
+     * Get list of triples on the resource name and predicate
      *
      * @param resourceName resource name
      * @param rdfPredicate predicate

@@ -19,9 +19,6 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
         - dynamodb:DescribeTable
-        - dynamodb:TagResource
-        - dynamodb:UntagResource
-        - dynamodb:ListTagsOfResource
       # Allows the above actions to be performed on the DynamoDb table created in the resources below
       Resource: "arn:aws:dynamodb:*:*:table/${self:provider.environment.DYNAMODB_TABLE}"
 

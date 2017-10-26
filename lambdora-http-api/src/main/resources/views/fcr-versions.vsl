@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+    #set( $title = $helpers.getObjectTitle($rdf, $topic) )
+
+    #parse("views/common.vsl")
+<html>
+<head>
+    <title>$title</title>
+    <meta charset="UTF-8">
+    #parse("views/common-head.vsl")
+</head>
+
+
+<body  class="fcrepo_resource">
+  <div  id="main" class="container" resource="$topic.getURI()">
+    #parse("views/common-node-header.vsl")
+    <div class="col-md-12">
+      #parse("views/common-breadcrumb.vsl")
+    </div>
+    <div id="historic-versions">
+        <h2>Historic Versions</h2>
+        <div class="panel-group" id="accordion">
+            #foreach($subject in $helpers.getVersions($rdf, $topic))
+                <div class="panel panel-default" resource="$subject.getURI()">
+                    #set($label = $helpers.getVersionLabel($rdf, $subject).orElse("Unlabeled Version"))
+                    <div class="panel-heading collapsed" data-toggle="collapse" data-target="#$helpers.parameterize($subject.getURI())_triples" >
+                        <div class="ctitle panel-title"><a href="$subject.getURI()" class="version_link">$esc.html($label)</a></div>
+                    </div>
+                    <div class="panel-collapse collapse" id="$helpers.parameterize($subject.getURI())_triples">
+                        <div class="panel-body">
+                            #triples($subject)
+                        </div>
+                    </div>
+                </div>
+            #end
+        </div>
+  </div>
+</body>
+</html>

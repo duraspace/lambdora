@@ -9,6 +9,8 @@ provider:
     DYNAMODB_TABLE: RESOURCE_TRIPLE
   iamRoleStatements: # IAM role statements which are applied to role attached to lambda functions
     - Effect: Allow
+      # Allows code in lambda function to read/write data in DynamoDB
+      # This list of actions is a subset of those available from DynamoDB, based on the expected needs of this project
       Action:
         - dynamodb:Query
         - dynamodb:Scan
@@ -20,6 +22,7 @@ provider:
         - dynamodb:TagResource
         - dynamodb:UntagResource
         - dynamodb:ListTagsOfResource
+      # Allows the above actions to be performed on the DynamoDb table created in the resources below
       Resource: "arn:aws:dynamodb:*:*:table/${self:provider.environment.DYNAMODB_TABLE}"
 
 package:

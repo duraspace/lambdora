@@ -16,9 +16,10 @@ import static org.apache.jena.rdf.model.ModelFactory.createDefaultModel;
 import static org.apache.jena.riot.RDFLanguages.strLangNTriples;
 
 /**
- * TripleUtil
+ * This class provides utilities for converting between n-triple strings and Jena Triples.
  *
  * @author dbernstein
+ * @author awoods 
  */
 public class TripleUtil {
 

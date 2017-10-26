@@ -5,7 +5,23 @@ frameworkVersion: ">=1.2.0 <2.0.0"
 provider:
   name: aws
   runtime: java8
-  
+  environment: # Service wide environment variables
+    DYNAMODB_TABLE: RESOURCE_TRIPLE
+  iamRoleStatements: # IAM role statements which are applied to role attached to lambda functions
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+        - dynamodb:DescribeTable
+        - dynamodb:TagResource
+        - dynamodb:UntagResource
+        - dynamodb:ListTagsOfResource
+      Resource: "arn:aws:dynamodb:*:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+
 package:
   artifact: lambdora-http-api/build/distributions/lambdora-http-api-0.1.0-SNAPSHOT.zip
 
@@ -24,7 +40,7 @@ resources:
     resourceTripleTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: RESOURCE_TRIPLE
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
         AttributeDefinitions:
           - AttributeName: resource_name
             AttributeType: S

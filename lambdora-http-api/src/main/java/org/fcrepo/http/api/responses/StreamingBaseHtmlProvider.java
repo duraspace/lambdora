@@ -24,6 +24,7 @@ import static com.google.common.collect.ImmutableMap.builder;
 import static org.apache.jena.graph.Node.ANY;
 import static org.apache.jena.sparql.util.graph.GraphUtils.multiValueURI;
 import static org.apache.jena.vocabulary.RDF.type;
+import static org.apache.velocity.runtime.RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS;
 import static org.fcrepo.http.commons.domain.RDFMediaType.TEXT_HTML_WITH_CHARSET;
 import static org.fcrepo.kernel.api.RdfLexicon.LDP_NAMESPACE;
 import static org.fcrepo.kernel.api.RdfLexicon.REPOSITORY_NAMESPACE;
@@ -124,6 +125,7 @@ public class StreamingBaseHtmlProvider implements MessageBodyWriter<RdfNamespace
         try (final InputStream propertiesStream = propertiesUrl.openStream()) {
             properties.load(propertiesStream);
         }
+        velocity.setProperty(RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogChute");
         velocity.init(properties);
         LOGGER.trace("Velocity engine initialized.");
 

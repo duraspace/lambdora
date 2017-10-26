@@ -3,7 +3,6 @@ package org.fcrepo.lambdora.ldp;
 import com.google.common.collect.ImmutableSet;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
-import org.fcrepo.http.api.responses.StreamingHtmlProvider;
 import org.fcrepo.http.commons.responses.RdfNamespacedStream;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -16,19 +15,13 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import java.io.IOException;
 import java.util.List;
 
-import static javax.ws.rs.core.HttpHeaders.LINK;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.fcrepo.kernel.api.RdfCollectors.toModel;
-import static org.fcrepo.kernel.api.RdfLexicon.LDP_NAMESPACE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 /**
@@ -39,6 +32,8 @@ import static org.springframework.test.util.ReflectionTestUtils.setField;
  *
  * It doesn't currently pass checkstyle (was testing with it disabled just to make progress without worrying about
  * how it would finally be structured).
+ *
+ * @author gtriggs
  */
 
 @RunWith(MockitoJUnitRunner.class)
@@ -61,6 +56,7 @@ public class LambdoraLdpTest {
      * transformation providers in Jersey)
      */
     @Test
+    @Ignore
     public void testGet() throws Exception {
         /**
          * Not currently dealing with FedoraReource classes

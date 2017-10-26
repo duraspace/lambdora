@@ -37,7 +37,7 @@ subprojects {
                 'configDir': rootProject.file('config/checkstyle'),
                 'baseDir'  : rootDir,
         ]
-        toolVersion = '7.3'
+        toolVersion = '6.11.2'
     }
 
     dependencies {

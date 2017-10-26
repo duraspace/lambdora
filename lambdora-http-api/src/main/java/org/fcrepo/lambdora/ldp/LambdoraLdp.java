@@ -101,10 +101,13 @@ public class LambdoraLdp {
 
         LOGGER.info("GET resource '{}'", externalPath);
 
-        try (final RdfStream rdfStream = new DefaultRdfStream(testNode())) {
+        return ok("GET: Welcome to Lambdora. The current time is " + new Date() +
+                ". path=" + externalPath).build();
+
+//        try (final RdfStream rdfStream = new DefaultRdfStream(testNode())) {
 //            addResourceHttpHeaders(resource());
-            return getContent(rangeValue, getChildrenLimit(), rdfStream);
-        }
+//            return getContent(rangeValue, getChildrenLimit(), rdfStream);
+//        }
     }
 
     /**
@@ -196,7 +199,7 @@ public class LambdoraLdp {
      * @return
      */
     protected Map<String, String> getNamespaces() {
-        Map<String, String> namespaces = new HashMap<>();
+        final Map<String, String> namespaces = new HashMap<>();
         namespaces.put("premis", "http://www.loc.gov/premis/rdf/v1#");
         namespaces.put("test", "info:fedora/test/");
         namespaces.put("rdfs", "http://www.w3.org/2000/01/rdf-schema#");

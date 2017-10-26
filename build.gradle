@@ -41,9 +41,10 @@ subprojects {
     }
 
     dependencies {
-        testCompile([group: 'junit', name: 'junit', version: '4.12'],
-                [group: 'com.amazonaws', name: 'DynamoDBLocal', version: '1.11.0'],
-                [group: 'org.mockito', name: 'mockito-core', version: '2.+']
+        testCompile(
+                'junit:junit:4.12',
+                'com.amazonaws:DynamoDBLocal:1.11.0',
+                'org.mockito:mockito-core:2.+'
         )
     }
 
@@ -52,7 +53,6 @@ subprojects {
         maven {
             url 'http://dynamodb-local.s3-website-us-west-2.amazonaws.com/release'
         }
-        repositories { jcenter() }
     }
 
     task copyNativeDeps(type: Copy) {

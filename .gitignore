@@ -1,7 +1,5 @@
 *.class
 .gradle
-gradlew*
-gradle/
 build
 /bin/
 */out

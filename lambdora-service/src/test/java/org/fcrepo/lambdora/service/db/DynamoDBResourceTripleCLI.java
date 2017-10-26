@@ -28,7 +28,7 @@ public class DynamoDBResourceTripleCLI {
      */
     public static void main(final String[] args) {
 
-        final ResourceTripleDao resourceTripleDao = DynamoDBResourceTripleDao.getInstance();
+        final ResourceTripleDao resourceTripleDao = new DynamoDBResourceTripleDao();
 
         resourceTripleDao.addResourceTriple("resource1", "subject1 predicate1 object1", "subject1",
             "predicate1", "object1");

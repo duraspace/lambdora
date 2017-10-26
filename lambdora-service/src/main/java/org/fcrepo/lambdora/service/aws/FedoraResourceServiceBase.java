@@ -22,7 +22,7 @@ public abstract class FedoraResourceServiceBase<T> implements Service<T> {
 
     @Override
     public boolean exists(final URI identifier) {
-        return this.resourceTripleDao.findByResourceName(identifier.toString()).size() > 0;
+        return !this.resourceTripleDao.findByResourceName(identifier.toString()).isEmpty();
     }
 
     @Override
@@ -42,6 +42,7 @@ public abstract class FedoraResourceServiceBase<T> implements Service<T> {
 
     /**
      * return ResourceTripleDao
+     *
      * @return
      */
     protected ResourceTripleDao getResourceTripleDao() {
@@ -50,6 +51,7 @@ public abstract class FedoraResourceServiceBase<T> implements Service<T> {
 
     /**
      * create new resource
+     *
      * @param identifier
      * @return
      */

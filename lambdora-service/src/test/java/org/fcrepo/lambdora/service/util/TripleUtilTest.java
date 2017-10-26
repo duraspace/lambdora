@@ -13,11 +13,15 @@ import static org.junit.Assert.assertEquals;
  * @author dbernstein
  */
 public class TripleUtilTest {
+
     @Test
-    public void roundTripTest(){
-        Triple t1 = new Triple(createURI("http://example.com/1"), createURI("http://example.com/2"), createLiteral("test"));
-        String serializedValue = TripleUtil.fromTriple(t1);
-        Triple t2 = TripleUtil.toTriple(serializedValue);
+    public void roundTripTest() {
+        final Triple t1 = new Triple(
+                createURI("http://example.com/1"),
+                createURI("http://example.com/2"),
+                createLiteral("test"));
+        final String serializedValue = TripleUtil.fromTriple(t1);
+        final Triple t2 = TripleUtil.toTriple(serializedValue);
         assertEquals("Triples do not match",  t1, t2);
     }
 

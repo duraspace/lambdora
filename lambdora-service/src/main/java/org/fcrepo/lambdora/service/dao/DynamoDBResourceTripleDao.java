@@ -22,8 +22,24 @@ public class DynamoDBResourceTripleDao implements ResourceTripleDao {
     private static final String OBJECT_INDEX = "objectIndex";
     private static final String PREDICATE_INDEX = "predicateIndex";
 
-    private static volatile DynamoDBResourceTripleDao instance;
-    private static final DynamoDBMapper mapper = DynamoDBManager.getMapper();
+    private DynamoDBMapper mapper;
+
+    /**
+     * Creates a ResourceTriple data access object for communication with DynamoDB
+     */
+    public DynamoDBResourceTripleDao() {
+        this(DynamoDBManager.getMapper());
+    }
+
+    /**
+     * Creates a ResourceTriple data access object for communication with DynamoDB
+     * using the supplied mapper
+     *
+     * @param mapper DynamoDBMapper
+     */
+    public DynamoDBResourceTripleDao(final DynamoDBMapper mapper) {
+        this.mapper = mapper;
+    }
 
     /**
      * {@inheritDoc}
@@ -40,22 +56,6 @@ public class DynamoDBResourceTripleDao implements ResourceTripleDao {
     public void addResourceTriple(final String resourceName, final String rdfTriple, final String rdfSubject,
                                   final String rdfPredicate, final String rdfObject) {
         addResourceTriple(new ResourceTriple(resourceName, rdfTriple, rdfSubject, rdfPredicate, rdfObject));
-    }
-
-    /**
-     * Retrieve and instance of this DAO
-     *
-     * @return DynamoDBResourceTripleDao
-     */
-    public static DynamoDBResourceTripleDao getInstance() {
-        if (instance == null) {
-            synchronized (DynamoDBResourceTripleDao.class) {
-                if (instance == null) {
-                    instance = new DynamoDBResourceTripleDao();
-                }
-            }
-        }
-        return instance;
     }
 
     /**

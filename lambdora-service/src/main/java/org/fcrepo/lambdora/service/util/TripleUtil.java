@@ -19,7 +19,7 @@ import static org.apache.jena.riot.RDFLanguages.strLangNTriples;
  * This class provides utilities for converting between n-triple strings and Jena Triples.
  *
  * @author dbernstein
- * @author awoods 
+ * @author awoods
  */
 public class TripleUtil {
 

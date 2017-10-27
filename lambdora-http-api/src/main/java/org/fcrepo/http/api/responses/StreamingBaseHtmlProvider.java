@@ -21,6 +21,7 @@ import static java.lang.System.getProperty;
 import static java.util.stream.Stream.of;
 import static javax.ws.rs.core.MediaType.TEXT_HTML_TYPE;
 import static com.google.common.collect.ImmutableMap.builder;
+import static org.apache.commons.lang3.CharEncoding.UTF_8;
 import static org.apache.jena.graph.Node.ANY;
 import static org.apache.jena.sparql.util.graph.GraphUtils.multiValueURI;
 import static org.apache.jena.vocabulary.RDF.type;
@@ -165,7 +166,7 @@ public class StreamingBaseHtmlProvider implements MessageBodyWriter<RdfNamespace
 
         // the contract of MessageBodyWriter<T> is _not_ to close the stream
         // after writing to it
-        final Writer outWriter = new OutputStreamWriter(entityStream);
+        final Writer outWriter = new OutputStreamWriter(entityStream, UTF_8);
         nodeTypeTemplate.merge(context, outWriter);
         outWriter.flush();
     }

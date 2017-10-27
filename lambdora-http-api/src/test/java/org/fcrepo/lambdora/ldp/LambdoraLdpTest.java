@@ -1,27 +1,34 @@
 package org.fcrepo.lambdora.ldp;
 
-import com.google.common.collect.ImmutableSet;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.RDFNode;
-import org.fcrepo.http.commons.responses.RdfNamespacedStream;
+import org.apache.commons.io.IOUtils;
+import org.apache.jena.graph.Triple;
+import org.fcrepo.lambdora.service.api.Container;
+import org.fcrepo.lambdora.service.api.ContainerService;
+import org.fcrepo.lambdora.service.api.LambdoraApplication;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
-import java.util.List;
+import java.io.InputStream;
+import java.net.URI;
+import java.nio.charset.Charset;
+import java.util.Arrays;
 
+import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.OK;
-import static org.fcrepo.kernel.api.RdfCollectors.toModel;
+import static org.apache.jena.graph.NodeFactory.createURI;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 /**
@@ -43,6 +50,16 @@ public class LambdoraLdpTest {
     @Mock
     private Request mockRequest;
 
+    @Mock
+    private LambdoraApplication mockApplication;
+
+    @Mock
+    private ContainerService mockContainerService;
+
+    @Mock
+    private Container mockContainer;
+
+
     private HttpServletResponse mockResponse;
 
     /**
@@ -56,16 +73,71 @@ public class LambdoraLdpTest {
      * transformation providers in Jersey)
      */
     @Test
-    @Ignore
     public void testGet() throws Exception {
         /**
          * Not currently dealing with FedoraReource classes
          */
 //        setResource(FedoraResource.class);
 
+        testObj.externalPath = "";
 
+        final URI internalURI = URI.create("fedora://info/test");
+
+        when(this.mockContainerService.find(any())).thenReturn(mockContainer);
+        when(this.mockContainer.getIdentifier()).thenReturn(internalURI);
+        when(this.mockContainer.getTriples()).thenReturn(Arrays.asList(new Triple(createURI("http://test"),
+                                                                                  createURI("http://test"),
+                                                                                  createURI("http://test")))
+                                                                .stream());
         final Response actual = testObj.getResource(null);
         assertEquals(OK.getStatusCode(), actual.getStatus());
+        /**
+         * getResource doesn't add any headers at the moment
+         */
+//        assertTrue("Should have a Link header", mockResponse.containsHeader(LINK));
+//        assertTrue("Should have an Allow header", mockResponse.containsHeader("Allow"));
+//        assertTrue("Should be an LDP Resource",
+//                mockResponse.getHeaders(LINK).contains("<" + LDP_NAMESPACE + "Resource>;rel=\"type\""));
+
+//        try (final RdfNamespacedStream entity = (RdfNamespacedStream) actual.getEntity()) {
+//            final Model model = entity.stream.collect(toModel());
+//            final List<String> rdfNodes = model.listObjects().mapWith(RDFNode::toString).toList();
+//            assertTrue("Expected RDF contexts missing", rdfNodes.containsAll(ImmutableSet.of(
+//                    "LDP_CONTAINMENT", "LDP_MEMBERSHIP", "PROPERTIES", "SERVER_MANAGED")));
+//        }
+
+        verify(this.mockApplication).containerService();
+        verify(this.mockContainerService).find(any());
+        verify(this.mockContainer).getIdentifier();
+        verify(this.mockContainer).getTriples();
+    }
+
+
+    @Test
+    public void testPostCreateContainer() throws Exception {
+        /**
+         * Not currently dealing with FedoraReource classes
+         */
+//        setResource(FedoraResource.class);
+
+        testObj.externalPath = "";
+
+        final String requestBody =
+            "@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
+            "@prefix ldp:  <http://www.w3.org/ns/ldp#> .\n" +
+            "\n" +
+            "<http://demo.fcrepo.org:8080/fcrepo/rest/>\n" +
+            "    rdf:type                       ldp:RDFSource ;\n" +
+            "    rdf:type                       ldp:BasicContainer ;\n";
+
+        final InputStream is = IOUtils.toInputStream(requestBody, Charset.defaultCharset());
+        final URI internalURI = URI.create("fedora://info/test");
+        when(this.mockContainerService.findOrCreate(internalURI)).thenReturn(mockContainer);
+        when(this.mockContainer.getIdentifier()).thenReturn(internalURI);
+        doNothing().when(this.mockContainer).updateTriples(any());
+        final Response actual = testObj.createObject(null, null, "test", is,null,null);
+        assertEquals(CREATED.getStatusCode(), actual.getStatus());
+        assertEquals("/rest/test", actual.getLocation().getPath());
 
 
         /**
@@ -76,12 +148,17 @@ public class LambdoraLdpTest {
 //        assertTrue("Should be an LDP Resource",
 //                mockResponse.getHeaders(LINK).contains("<" + LDP_NAMESPACE + "Resource>;rel=\"type\""));
 
-        try (final RdfNamespacedStream entity = (RdfNamespacedStream) actual.getEntity()) {
-            final Model model = entity.stream.collect(toModel());
-            final List<String> rdfNodes = model.listObjects().mapWith(RDFNode::toString).toList();
-            assertTrue("Expected RDF contexts missing", rdfNodes.containsAll(ImmutableSet.of(
-                    "LDP_CONTAINMENT", "LDP_MEMBERSHIP", "PROPERTIES", "SERVER_MANAGED")));
-        }
+//        try (final RdfNamespacedStream entity = (RdfNamespacedStream) actual.getEntity()) {
+//            final Model model = entity.stream.collect(toModel());
+//            final List<String> rdfNodes = model.listObjects().mapWith(RDFNode::toString).toList();
+//            assertTrue("Expected RDF contexts missing", rdfNodes.containsAll(ImmutableSet.of(
+//                    "LDP_CONTAINMENT", "LDP_MEMBERSHIP", "PROPERTIES", "SERVER_MANAGED")));
+//        }
+
+        verify(this.mockApplication).containerService();
+        verify(this.mockContainerService).findOrCreate(internalURI);
+        verify(this.mockContainer).getIdentifier();
+        verify(this.mockContainer).updateTriples(any());
     }
 
     @Before
@@ -92,7 +169,9 @@ public class LambdoraLdpTest {
          * LambdoraLdp doesn't currently have a lot of the fields that are injected into a full
          * FedoraLdp class hierarchy
          */
-        testObj = spy(new LambdoraLdp());
+        testObj = spy(new LambdoraLdp(mockApplication));
+
+        when(mockApplication.containerService()).thenReturn(mockContainerService);
 
         mockResponse = new MockHttpServletResponse();
 

@@ -1,15 +1,20 @@
 package org.fcrepo.lambdora.ldp;
 
 import org.apache.jena.graph.Node;
-import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Statement;
 import org.fcrepo.http.commons.domain.ContentLocation;
 import org.fcrepo.http.commons.responses.RdfNamespacedStream;
 import org.fcrepo.kernel.api.RdfStream;
 import org.fcrepo.kernel.api.exception.InvalidChecksumException;
 import org.fcrepo.kernel.api.exception.MalformedRdfException;
 import org.fcrepo.kernel.api.rdf.DefaultRdfStream;
+import org.fcrepo.lambdora.service.api.Container;
+import org.fcrepo.lambdora.service.api.ContainerService;
+import org.fcrepo.lambdora.service.api.LambdoraApplication;
+import org.fcrepo.lambdora.service.aws.DaggerAwsLambdoraApplication;
 import org.glassfish.jersey.media.multipart.ContentDisposition;
 import org.slf4j.Logger;
 
@@ -29,19 +34,23 @@ import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static java.util.stream.Stream.concat;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_DISPOSITION;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.HttpHeaders.LINK;
 import static javax.ws.rs.core.MediaType.WILDCARD;
+import static javax.ws.rs.core.Response.created;
 import static javax.ws.rs.core.Response.ok;
+import static org.apache.jena.graph.NodeFactory.createURI;
 import static org.fcrepo.http.commons.domain.RDFMediaType.JSON_LD;
-import static org.fcrepo.http.commons.domain.RDFMediaType.N3_WITH_CHARSET;
 import static org.fcrepo.http.commons.domain.RDFMediaType.N3_ALT2_WITH_CHARSET;
+import static org.fcrepo.http.commons.domain.RDFMediaType.N3_WITH_CHARSET;
 import static org.fcrepo.http.commons.domain.RDFMediaType.NTRIPLES;
 import static org.fcrepo.http.commons.domain.RDFMediaType.RDF_XML;
 import static org.fcrepo.http.commons.domain.RDFMediaType.TEXT_HTML_WITH_CHARSET;
@@ -68,14 +77,28 @@ public class LambdoraLdp {
     @Context
     protected HttpHeaders headers;
 
-    @Context protected Request request;
-    @Context protected HttpServletResponse servletResponse;
+    @Context
+    protected Request request;
+    @Context
+    protected HttpServletResponse servletResponse;
+
+    private LambdoraApplication application;
 
     /**
      * Default JAX-RS entry point
      */
     public LambdoraLdp() {
+        this(DaggerAwsLambdoraApplication.builder().build());
+    }
+
+    /**
+     * An entry point used currently for testing.
+     *
+     * @param application
+     */
+    public LambdoraLdp(final LambdoraApplication application) {
         super();
+        this.application = application;
     }
 
     /**
@@ -87,8 +110,8 @@ public class LambdoraLdp {
      */
     @GET
     @Produces({TURTLE_WITH_CHARSET + ";qs=1.0", JSON_LD + ";qs=0.8",
-            N3_WITH_CHARSET, N3_ALT2_WITH_CHARSET, RDF_XML, NTRIPLES, TEXT_PLAIN_WITH_CHARSET,
-            TURTLE_X, TEXT_HTML_WITH_CHARSET})
+        N3_WITH_CHARSET, N3_ALT2_WITH_CHARSET, RDF_XML, NTRIPLES, TEXT_PLAIN_WITH_CHARSET,
+        TURTLE_X, TEXT_HTML_WITH_CHARSET})
     public Response getResource(@HeaderParam("Range") final String rangeValue) throws IOException {
 
         /**
@@ -101,18 +124,29 @@ public class LambdoraLdp {
 
         LOGGER.info("GET resource '{}'", externalPath);
 
-        return ok("GET: Welcome to Lambdora. The current time is " + new Date() +
-                ". path=" + externalPath).build();
+        final ContainerService containerService = this.application.containerService();
 
-//        try (final RdfStream rdfStream = new DefaultRdfStream(testNode())) {
-//            addResourceHttpHeaders(resource());
-//            return getContent(rangeValue, getChildrenLimit(), rdfStream);
-//        }
+        final URI internalURI = createFromPath(externalPath);
+
+        final Container container = containerService.find(internalURI);
+        if (container == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        //
+        //        try (final RdfStream rdfStream = new DefaultRdfStream(testNode())) {
+        //            addResourceHttpHeaders(resource());
+        //            return getContent(rangeValue, getChildrenLimit(), rdfStream);
+        //        }
+
+        try (DefaultRdfStream stream = new DefaultRdfStream(createURI(container.getIdentifier().toString()),
+                                                            container.getTriples())) {
+            return ok(stream).build();
+        }
     }
 
     /**
      * Creates a new object.
-     *
+     * <p>
      * This originally used application/octet-stream;qs=1001 as a workaround
      * for JERSEY-2636, to ensure requests without a Content-Type get routed here.
      * This qs value does not parse with newer versions of Jersey, as qs values
@@ -121,38 +155,62 @@ public class LambdoraLdp {
      *
      * @param contentDisposition the content Disposition value
      * @param requestContentType the request content type
-     * @param slug the slug value
-     * @param requestBodyStream the request body stream
-     * @param link the link value
-     * @param digest the digest header
+     * @param slug               the slug value
+     * @param requestBodyStream  the request body stream
+     * @param link               the link value
+     * @param digest             the digest header
      * @return 201
      * @throws InvalidChecksumException if invalid checksum exception occurred
-     * @throws IOException if IO exception occurred
-     * @throws MalformedRdfException if malformed rdf exception occurred
+     * @throws IOException              if IO exception occurred
+     * @throws MalformedRdfException    if malformed rdf exception occurred
      */
     @POST
     @Consumes({MediaType.APPLICATION_OCTET_STREAM + ";qs=1.000", WILDCARD})
     @Produces({TURTLE_WITH_CHARSET + ";qs=1.0", JSON_LD + ";qs=0.8",
-            N3_WITH_CHARSET, N3_ALT2_WITH_CHARSET, RDF_XML, NTRIPLES, TEXT_PLAIN_WITH_CHARSET,
-            TURTLE_X, TEXT_HTML_WITH_CHARSET, "*/*"})
+        N3_WITH_CHARSET, N3_ALT2_WITH_CHARSET, RDF_XML, NTRIPLES, TEXT_PLAIN_WITH_CHARSET,
+        TURTLE_X, TEXT_HTML_WITH_CHARSET, "*/*"})
     public Response createObject(@HeaderParam(CONTENT_DISPOSITION) final ContentDisposition contentDisposition,
                                  @HeaderParam(CONTENT_TYPE) final MediaType requestContentType,
                                  @HeaderParam("Slug") final String slug,
                                  @ContentLocation final InputStream requestBodyStream,
                                  @HeaderParam(LINK) final String link,
                                  @HeaderParam("Digest") final String digest)
-            throws InvalidChecksumException, IOException, MalformedRdfException {
+        throws InvalidChecksumException, IOException, MalformedRdfException {
 
-        return ok("POST: Welcome to Lambdora. The current time is " + new Date() +
-                ". path=" + externalPath).build();
+        final ContainerService containerService = this.application.containerService();
+        final URI objectURI = createFromPath(externalPath + slug);
+        final Container container = containerService.findOrCreate(objectURI);
+
+        final Model model = ModelFactory.createDefaultModel();
+        model.read(requestBodyStream, null, "TTL");
+
+        final Stream<Triple> triples = model.listStatements().toList().stream().map(new Function<Statement, Triple>() {
+            @Override
+            public Triple apply(final Statement statement) {
+                return statement.asTriple();
+            }
+        });
+
+        container.updateTriples(triples);
+
+        return created(toExternalURI(container.getIdentifier())).build();
     }
+
+    private URI createFromPath(final String path) {
+        return URI.create("fedora://info/" + path);
+    }
+
+    private URI toExternalURI(final URI uri) {
+        return URI.create("http://localhost:8080/rest" + uri.getPath());
+    }
+
 
     /**
      * This method returns an HTTP response with content body appropriate to the following arguments.
      *
      * @param rangeValue starting and ending byte offsets
-     * @param limit is the number of child resources returned in the response, -1 for all
-     * @param rdfStream to which response RDF will be concatenated
+     * @param limit      is the number of child resources returned in the response, -1 for all
+     * @param rdfStream  to which response RDF will be concatenated
      * @return HTTP response
      * @throws IOException in case of error extracting content
      */
@@ -174,10 +232,10 @@ public class LambdoraLdp {
         final RdfNamespacedStream outputStream;
 
         outputStream = new RdfNamespacedStream(
-                new DefaultRdfStream(
-                        rdfStream.topic(),
-                        concat( rdfStream, DefaultRdfStream.fromModel(testNode(), testModel()))
-                ), getNamespaces());
+            new DefaultRdfStream(
+                rdfStream.topic(),
+                concat(rdfStream, DefaultRdfStream.fromModel(testNode(), testModel()))
+            ), getNamespaces());
 
         ;
 
@@ -196,6 +254,7 @@ public class LambdoraLdp {
 
     /**
      * Stub method for testing - return a map of the namespace / uris that you want prefixes for in the RDF
+     *
      * @return
      */
     protected Map<String, String> getNamespaces() {
@@ -223,6 +282,7 @@ public class LambdoraLdp {
 
     /**
      * Stub method for testing
+     *
      * @return
      */
     private int getChildrenLimit() {
@@ -232,20 +292,22 @@ public class LambdoraLdp {
     /**
      * Stub method for testing - returns a resource URI for what is being requested.
      * Hard coded to pretend that we are returning the top level resource for now.
+     *
      * @return
      */
     private Node testNode() {
-        return NodeFactory.createURI("http://demo.fcrepo.org:8080/fcrepo/rest/");
+        return createURI("http://demo.fcrepo.org:8080/fcrepo/rest/");
     }
 
     /**
      * Stub method for testing - return a Jena Model to create a stream from
      * In production the stream will have been generated from the service layer
+     *
      * @return
      */
     private Model testModel() {
         final Model model = ModelFactory.createDefaultModel();
-        try (final InputStream in = new ByteArrayInputStream(rootTTL.getBytes("UTF-8")) ) {
+        try (final InputStream in = new ByteArrayInputStream(rootTTL.getBytes("UTF-8"))) {
             model.read(in, null, "TURTLE");
         } catch (IOException e) {
 
@@ -256,7 +318,7 @@ public class LambdoraLdp {
 
     /**
      * Sample TURTLE string to provide an RDF model pertaining to a Fedora Resource
-     *
+     * <p>
      * - this was created by curling the Fedora demo server for the root resource
      */
 

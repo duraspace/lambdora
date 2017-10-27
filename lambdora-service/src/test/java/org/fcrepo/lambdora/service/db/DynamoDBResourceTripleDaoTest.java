@@ -3,6 +3,7 @@ package org.fcrepo.lambdora.service.db;
 import java.util.List;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import org.fcrepo.lambdora.common.test.IntegrationTestBase;
 import org.fcrepo.lambdora.service.dao.DynamoDBResourceTripleDao;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +15,7 @@ import static org.junit.Assert.assertEquals;
  *
  * @author bbranan
  */
-public class DynamoDBResourceTripleDaoTest extends DynamoDbTestBase {
+public class DynamoDBResourceTripleDaoTest extends IntegrationTestBase {
 
     private DynamoDBResourceTripleDao resourceTripleDao;
 

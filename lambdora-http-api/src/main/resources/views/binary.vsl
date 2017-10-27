@@ -1,0 +1,62 @@
+#* @vtlvariable name="topic" type="org.apache.jena.graph.Node" *#
+#* @vtlvariable name="rdf" type="org.apache.jena.sparql.core.DatasetGraph" *#
+#* @vtlvariable name="model" type="org.apache.jena.rdf.model.Model" *#
+<!DOCTYPE html>
+#set( $title = $helpers.getObjectTitle($rdf, $topic) )
+#set( $contentNode = $helpers.getContentNode($topic) )
+
+
+#parse("views/common.vsl")
+<html>
+<head>
+	<meta charset="UTF-8">
+    <title>$title</title>
+    #parse("views/common-head.vsl")
+</head>
+
+
+<body class="fcrepo_binary">
+<div  id="main" class="container" resource="$topic.getURI()">
+    #parse("views/common-node-header.vsl")
+
+
+    <div class="row">
+
+        <div class="col-md-12">
+            #parse("views/common-breadcrumb.vsl")
+        </div>
+
+        <div class="col-md-3 col-md-push-9 clearfix">
+            <button id="toggle-actions" type="button" class="visible-xs visible-sm btn btn-danger" data-toggle="collapse" data-target=".actions">
+                <span>Toggle actions</span>
+            </button>
+
+        ## output actions
+            <div class="actions collapse visible-lg visible-md" id="actions">
+                #parse("views/common-node-actions.vsl")
+            </div>
+        </div>
+
+        <div class="col-md-9 col-md-pull-3">
+
+            #parse("views/common-metadata.vsl")
+
+        ## output triples for the topic node
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">Properties</h4>
+                </div>
+                <div class="panel-body">
+                    #triples($contentNode)
+                </div>
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+</div>
+</body>
+</html>

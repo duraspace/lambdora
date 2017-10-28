@@ -2,8 +2,11 @@ package org.fcrepo.lambdora.service.aws;
 
 import org.fcrepo.lambdora.service.api.Service;
 import org.fcrepo.lambdora.service.dao.ResourceTripleDao;
+import org.slf4j.Logger;
 
 import java.net.URI;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * A base class for Fedora Service implementations.
@@ -11,6 +14,9 @@ import java.net.URI;
  * @author dbernstein
  */
 public abstract class FedoraResourceServiceBase<T> implements Service<T> {
+
+    private static final Logger LOGGER = getLogger(FedoraResourceServiceBase.class);
+
     private ResourceTripleDao resourceTripleDao;
 
     /**
@@ -36,6 +42,7 @@ public abstract class FedoraResourceServiceBase<T> implements Service<T> {
 
     @Override
     public T findOrCreate(final URI identifier) {
+        LOGGER.debug("FindOrCreate: {}", identifier);
         final T resource = find(identifier);
         return (resource != null ? resource : create(identifier));
     }

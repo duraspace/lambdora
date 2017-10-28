@@ -4,12 +4,14 @@ import org.apache.jena.graph.Triple;
 import org.fcrepo.lambdora.service.api.Container;
 import org.fcrepo.lambdora.service.api.ContainerService;
 import org.fcrepo.lambdora.service.dao.ResourceTripleDao;
+import org.slf4j.Logger;
 
 import java.net.URI;
 
 import static org.apache.jena.graph.NodeFactory.createLiteral;
 import static org.apache.jena.graph.NodeFactory.createURI;
 import static org.fcrepo.lambdora.service.util.TripleUtil.toResourceTriple;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * A concrete AWS-based implementation of ContainerService.
@@ -17,6 +19,8 @@ import static org.fcrepo.lambdora.service.util.TripleUtil.toResourceTriple;
  * @author dbernstein
  */
 public class ContainerServiceImpl extends FedoraResourceServiceBase<Container> implements ContainerService {
+
+    private static final Logger LOGGER = getLogger(ContainerServiceImpl.class);
 
     /**
      * Default constructor
@@ -27,6 +31,8 @@ public class ContainerServiceImpl extends FedoraResourceServiceBase<Container> i
 
     @Override
     protected Container create(final URI identifier) {
+        LOGGER.debug("Create: {}", identifier);
+
         final ResourceTripleDao dao = getResourceTripleDao();
         final Triple t = new Triple(createURI(identifier.toString()),
             createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),

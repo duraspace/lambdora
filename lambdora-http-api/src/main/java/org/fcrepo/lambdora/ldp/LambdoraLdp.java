@@ -3,6 +3,9 @@ package org.fcrepo.lambdora.ldp;
 import org.fcrepo.http.commons.domain.ContentLocation;
 import org.fcrepo.kernel.api.exception.InvalidChecksumException;
 import org.fcrepo.kernel.api.exception.MalformedRdfException;
+import org.fcrepo.lambdora.service.api.ContainerService;
+import org.fcrepo.lambdora.service.aws.ContainerServiceImpl;
+import org.fcrepo.lambdora.service.dao.DynamoDBResourceTripleDao;
 import org.glassfish.jersey.media.multipart.ContentDisposition;
 import org.slf4j.Logger;
 
@@ -19,6 +22,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.Date;
 
 import static javax.ws.rs.core.HttpHeaders.CONTENT_DISPOSITION;
@@ -114,6 +118,9 @@ public class LambdoraLdp {
                                  @HeaderParam("Digest") final String digest)
             throws InvalidChecksumException, IOException, MalformedRdfException {
         LOGGER.info("POST: {}", externalPath);
+
+        final ContainerService containerService = new ContainerServiceImpl(new DynamoDBResourceTripleDao());
+        containerService.findOrCreate(URI.create("fedora:info/" + externalPath));
 
         return ok("POST: Welcome to Lambdora. The current time is " + new Date() +
                 ". path=" + externalPath).build();

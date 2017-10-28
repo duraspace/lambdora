@@ -79,7 +79,7 @@ project(':lambdora-http-api') {
     dependencies {
         compile project(':lambdora-service')
         compile(
-                'io.symphonia:lambda-logging:1.0.0',
+                'io.symphonia:lambda-logging:1.0.0:no-config',
                 'com.amazonaws:aws-lambda-java-core:1.1.0',
                 'com.amazonaws.serverless:aws-serverless-java-container-core:0.7',
                 'com.amazonaws.serverless:aws-serverless-java-container-jersey:0.7',

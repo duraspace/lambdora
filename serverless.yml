@@ -39,7 +39,10 @@ functions:
     handler: org.fcrepo.lambdora.ldp.JerseyRequestHandler
     events:
       - http:
-          path: /rest/{thepath+}
+          path: /{thepath+}
+          method: any
+      - http:
+          path: /
           method: any
     onError:
       Ref: DeadLetterQueue

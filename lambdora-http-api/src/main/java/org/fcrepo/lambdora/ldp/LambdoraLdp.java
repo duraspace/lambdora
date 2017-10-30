@@ -3,7 +3,11 @@ package org.fcrepo.lambdora.ldp;
 import org.fcrepo.http.commons.domain.ContentLocation;
 import org.fcrepo.kernel.api.exception.InvalidChecksumException;
 import org.fcrepo.kernel.api.exception.MalformedRdfException;
+import org.fcrepo.lambdora.service.api.ContainerService;
+import org.fcrepo.lambdora.service.aws.ContainerServiceImpl;
+import org.fcrepo.lambdora.service.dao.DynamoDBResourceTripleDao;
 import org.glassfish.jersey.media.multipart.ContentDisposition;
+import org.slf4j.Logger;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -18,6 +22,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.Date;
 
 import static javax.ws.rs.core.HttpHeaders.CONTENT_DISPOSITION;
@@ -34,6 +39,7 @@ import static org.fcrepo.http.commons.domain.RDFMediaType.TEXT_HTML_WITH_CHARSET
 import static org.fcrepo.http.commons.domain.RDFMediaType.TEXT_PLAIN_WITH_CHARSET;
 import static org.fcrepo.http.commons.domain.RDFMediaType.TURTLE_WITH_CHARSET;
 import static org.fcrepo.http.commons.domain.RDFMediaType.TURTLE_X;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Main entry points for Jersey request handling
@@ -42,6 +48,9 @@ import static org.fcrepo.http.commons.domain.RDFMediaType.TURTLE_X;
  */
 @Path("/{path: .*}")
 public class LambdoraLdp {
+
+    private static final Logger LOGGER = getLogger(LambdoraLdp.class);
+
     @PathParam("path")
     protected String externalPath;
 
@@ -70,6 +79,8 @@ public class LambdoraLdp {
             N3_WITH_CHARSET, N3_ALT2_WITH_CHARSET, RDF_XML, NTRIPLES, TEXT_PLAIN_WITH_CHARSET,
             TURTLE_X, TEXT_HTML_WITH_CHARSET})
     public Response getResource(@HeaderParam("Range") final String rangeValue) throws IOException {
+        LOGGER.info("GET: {}", externalPath);
+
         return ok("GET: Welcome to Lambdora. The current time is " + new Date() +
                 ". path=" + externalPath).build();
     }
@@ -106,6 +117,10 @@ public class LambdoraLdp {
                                  @HeaderParam(LINK) final String link,
                                  @HeaderParam("Digest") final String digest)
             throws InvalidChecksumException, IOException, MalformedRdfException {
+        LOGGER.info("POST: {}", externalPath);
+
+        final ContainerService containerService = new ContainerServiceImpl(new DynamoDBResourceTripleDao());
+        containerService.findOrCreate(URI.create("fedora:info/" + externalPath));
 
         return ok("POST: Welcome to Lambdora. The current time is " + new Date() +
                 ". path=" + externalPath).build();

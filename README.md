@@ -15,6 +15,8 @@ A serverless implementation of the Fedora Repository API on AWS. Uses the follow
 1. ``./gradlew build``
 1. Deploy 
    ``serverless deploy --aws-profile <your-profile-name> [--region <aws-region-name-here>]``
+1. Monitor logs
+   ``serverless logs -f ldpJersey -t --aws-profile <your-profile-name> [--region <aws-region-name-here>]``
 1. Read up on [3 Tips for faster development](https://serverless.com/blog/quick-tips-for-faster-serverless-development/).
 
 ## Tests

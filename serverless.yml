@@ -20,8 +20,10 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
         - dynamodb:DescribeTable
-      # Allows the above actions to be performed on the DynamoDb table created in the resources below
-      Resource: "arn:aws:dynamodb:*:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+      # Allows the above actions to be performed on the DynamoDb table and indexes created in the resources below
+      Resource:
+        - "arn:aws:dynamodb:*:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+        - "arn:aws:dynamodb:*:*:table/${self:provider.environment.DYNAMODB_TABLE}/index/*"
       # Allows Lambda to write to an SNS topic as a dead letter queue
     - Effect: Allow
       Action:

@@ -16,6 +16,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -43,6 +44,9 @@ public class LambdoraLdpTest {
 
     @Mock
     private Request mockRequest;
+
+    @Mock
+    private UriInfo mockUriInfo;
 
     @Mock
     private LambdoraApplication mockApplication;
@@ -101,9 +105,10 @@ public class LambdoraLdpTest {
         when(this.mockContainerService.findOrCreate(internalURI)).thenReturn(mockContainer);
         when(this.mockContainer.getIdentifier()).thenReturn(internalURI);
         doNothing().when(this.mockContainer).updateTriples(any());
+        when(this.mockUriInfo.getBaseUri()).thenReturn(URI.create("http://localhost"));
         final Response actual = testObj.createObject(null, null, "test", is,null,null);
         assertEquals(CREATED.getStatusCode(), actual.getStatus());
-        assertEquals("/rest/test", actual.getLocation().getPath());
+        assertEquals("/test", actual.getLocation().getPath());
 
         verify(this.mockApplication).containerService();
         verify(this.mockContainerService).findOrCreate(internalURI);
@@ -120,5 +125,7 @@ public class LambdoraLdpTest {
         mockResponse = new MockHttpServletResponse();
 
         setField(testObj, "servletResponse", mockResponse);
+        setField(testObj, "uriInfo", mockUriInfo);
+
     }
 }

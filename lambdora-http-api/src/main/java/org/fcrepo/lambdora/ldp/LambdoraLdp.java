@@ -27,6 +27,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -74,6 +75,8 @@ public class LambdoraLdp {
     protected Request request;
     @Context
     protected HttpServletResponse servletResponse;
+    @Context
+    protected UriInfo uriInfo;
 
     private LambdoraApplication application;
 
@@ -90,7 +93,6 @@ public class LambdoraLdp {
      * @param application
      */
     public LambdoraLdp(final LambdoraApplication application) {
-        super();
         this.application = application;
     }
 
@@ -103,8 +105,8 @@ public class LambdoraLdp {
      */
     @GET
     @Produces({TURTLE_WITH_CHARSET + ";qs=1.0", JSON_LD + ";qs=0.8",
-        N3_WITH_CHARSET, N3_ALT2_WITH_CHARSET, RDF_XML, NTRIPLES, TEXT_PLAIN_WITH_CHARSET,
-        TURTLE_X, TEXT_HTML_WITH_CHARSET})
+            N3_WITH_CHARSET, N3_ALT2_WITH_CHARSET, RDF_XML, NTRIPLES, TEXT_PLAIN_WITH_CHARSET,
+            TURTLE_X, TEXT_HTML_WITH_CHARSET})
     public Response getResource(@HeaderParam("Range") final String rangeValue) throws IOException {
         LOGGER.info("GET: {}", externalPath);
 
@@ -130,12 +132,12 @@ public class LambdoraLdp {
 
         //placehold until the above is fixed.
         return ok("GET: Welcome to Lambdora. The current time is " + new Date() +
-            ". path=" + externalPath).build();
+                ". path=" + externalPath).build();
     }
 
     /**
      * Creates a new object.
-     * <p>
+     *
      * This originally used application/octet-stream;qs=1001 as a workaround
      * for JERSEY-2636, to ensure requests without a Content-Type get routed here.
      * This qs value does not parse with newer versions of Jersey, as qs values
@@ -144,20 +146,20 @@ public class LambdoraLdp {
      *
      * @param contentDisposition the content Disposition value
      * @param requestContentType the request content type
-     * @param slug               the slug value
+     * @param slug the slug value
      * @param requestBodyStream  the request body stream
-     * @param link               the link value
-     * @param digest             the digest header
+     * @param link the link value
+     * @param digest the digest header
      * @return 201
      * @throws InvalidChecksumException if invalid checksum exception occurred
-     * @throws IOException              if IO exception occurred
-     * @throws MalformedRdfException    if malformed rdf exception occurred
+     * @throws IOException if IO exception occurred
+     * @throws MalformedRdfException if malformed rdf exception occurred
      */
     @POST
     @Consumes({MediaType.APPLICATION_OCTET_STREAM + ";qs=1.000", WILDCARD})
     @Produces({TURTLE_WITH_CHARSET + ";qs=1.0", JSON_LD + ";qs=0.8",
-        N3_WITH_CHARSET, N3_ALT2_WITH_CHARSET, RDF_XML, NTRIPLES, TEXT_PLAIN_WITH_CHARSET,
-        TURTLE_X, TEXT_HTML_WITH_CHARSET, "*/*"})
+            N3_WITH_CHARSET, N3_ALT2_WITH_CHARSET, RDF_XML, NTRIPLES, TEXT_PLAIN_WITH_CHARSET,
+            TURTLE_X, TEXT_HTML_WITH_CHARSET, "*/*"})
     public Response createObject(@HeaderParam(CONTENT_DISPOSITION) final ContentDisposition contentDisposition,
                                  @HeaderParam(CONTENT_TYPE) final MediaType requestContentType,
                                  @HeaderParam("Slug") final String slug,
@@ -187,10 +189,15 @@ public class LambdoraLdp {
     }
 
     private URI createFromPath(final String path) {
+        //@TODO this internal prefix should be changed
+        //      to something like "fedora:info/"
+        //      At the moment,  it is not clear how to use URI.getPath()
+        //      if the prefix is fedora:info/
         return URI.create("fedora://info/" + path);
     }
 
     private URI toExternalURI(final URI uri) {
-        return URI.create("http://localhost:8080/rest" + uri.getPath());
+        //TODO ensure the correctly translated URI is returned.
+        return URI.create(uriInfo.getBaseUri().toString() + uri.getPath());
     }
 }

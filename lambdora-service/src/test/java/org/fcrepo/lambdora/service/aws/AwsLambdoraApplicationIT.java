@@ -1,10 +1,10 @@
 package org.fcrepo.lambdora.service.aws;
 
+import org.fcrepo.lambdora.common.test.IntegrationTestBase;
 import org.fcrepo.lambdora.service.api.BinaryService;
 import org.fcrepo.lambdora.service.api.Container;
 import org.fcrepo.lambdora.service.api.ContainerService;
 import org.fcrepo.lambdora.service.api.LambdoraApplication;
-import org.fcrepo.lambdora.service.db.DynamoDbTestBase;
 import org.junit.Test;
 
 import java.net.URI;
@@ -21,7 +21,7 @@ import static org.junit.Assert.assertNotNull;
  *
  * @author dbernstein
  */
-public class AwsLambdoraApplicationIT extends DynamoDbTestBase {
+public class AwsLambdoraApplicationIT extends IntegrationTestBase {
 
     private LambdoraApplication application;
 

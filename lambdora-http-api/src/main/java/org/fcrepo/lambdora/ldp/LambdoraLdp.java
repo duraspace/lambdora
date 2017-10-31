@@ -7,6 +7,7 @@ import org.apache.jena.rdf.model.Statement;
 import org.fcrepo.http.commons.domain.ContentLocation;
 import org.fcrepo.kernel.api.exception.InvalidChecksumException;
 import org.fcrepo.kernel.api.exception.MalformedRdfException;
+import org.fcrepo.kernel.api.rdf.DefaultRdfStream;
 import org.fcrepo.lambdora.service.api.Container;
 import org.fcrepo.lambdora.service.api.ContainerService;
 import org.fcrepo.lambdora.service.api.LambdoraApplication;
@@ -31,7 +32,6 @@ import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Date;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -41,6 +41,7 @@ import static javax.ws.rs.core.HttpHeaders.LINK;
 import static javax.ws.rs.core.MediaType.WILDCARD;
 import static javax.ws.rs.core.Response.created;
 import static javax.ws.rs.core.Response.ok;
+import static org.apache.jena.graph.NodeFactory.createURI;
 import static org.fcrepo.http.commons.domain.RDFMediaType.JSON_LD;
 import static org.fcrepo.http.commons.domain.RDFMediaType.N3_ALT2_WITH_CHARSET;
 import static org.fcrepo.http.commons.domain.RDFMediaType.N3_WITH_CHARSET;
@@ -119,20 +120,9 @@ public class LambdoraLdp {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        /*
-         * This code is currently broken:  the apparent error:
-         * SEVERE: MessageBodyWriter not found for media type=text/n3;charset=utf-8,
-         * type=class org.fcrepo.kernel.api.rdf.DefaultRdfStream,
-         * genericType=class org.fcrepo.kernel.api.rdf.DefaultRdfStream.
-         */
-//         try (DefaultRdfStream stream = new DefaultRdfStream(createURI(container.getIdentifier().toString()),
-//                                                            container.getTriples())) {
-//            return ok(stream).build();
-//         }
-
-        //placehold until the above is fixed.
-        return ok("GET: Welcome to Lambdora. The current time is " + new Date() +
-                ". path=" + externalPath).build();
+        final DefaultRdfStream stream =
+                new DefaultRdfStream(createURI(container.getIdentifier().toString()), container.getTriples());
+        return ok(stream).build();
     }
 
     /**

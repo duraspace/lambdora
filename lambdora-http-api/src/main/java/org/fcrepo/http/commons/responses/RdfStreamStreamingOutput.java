@@ -33,7 +33,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Map;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -70,16 +69,13 @@ public class RdfStreamStreamingOutput extends AbstractFuture<Void> implements
 
     private final RdfStream rdfStream;
 
-    private final Map<String, String> namespaces;
-
     /**
      * Normal constructor
      *
      * @param rdfStream the rdf stream
-     * @param namespaces a namespace mapping
      * @param mediaType the media type
      */
-    public RdfStreamStreamingOutput(final RdfStream rdfStream, final Map<String, String> namespaces,
+    public RdfStreamStreamingOutput(final RdfStream rdfStream,
             final MediaType mediaType) {
         super();
 
@@ -99,14 +95,13 @@ public class RdfStreamStreamingOutput extends AbstractFuture<Void> implements
         }
 
         this.rdfStream = rdfStream;
-        this.namespaces = namespaces;
     }
 
     @Override
     public void write(final OutputStream output) {
         try {
             LOGGER.debug("Serializing RDF stream in: {}", format);
-            write(rdfStream, output, format, mediaType, namespaces);
+            write(rdfStream, output, format, mediaType);
         } catch (final IOException | RiotException e) {
             setException(e);
             LOGGER.debug("Error serializing RDF", e.getMessage());
@@ -117,17 +112,15 @@ public class RdfStreamStreamingOutput extends AbstractFuture<Void> implements
     private static void write(final RdfStream rdfStream,
                        final OutputStream output,
                        final Lang dataFormat,
-                       final MediaType dataMediaType,
-                       final Map<String, String> nsPrefixes) throws IOException {
+                       final MediaType dataMediaType) throws IOException {
 
         final RDFFormat format = defaultSerialization(dataFormat);
 
         // For formats that can be block-streamed (n-triples, turtle)
         if (format != null) {
             LOGGER.debug("Stream-based serialization of {}", dataFormat.toString());
-            final StreamRDF stream = new SynchonizedStreamRDFWrapper(getWriterStream(output, format));
+            final StreamRDF stream = getWriterStream(output, format);
             stream.start();
-            nsPrefixes.forEach(stream::prefix);
             rdfStream.forEach(stream::triple);
             stream.finish();
 
@@ -135,7 +128,6 @@ public class RdfStreamStreamingOutput extends AbstractFuture<Void> implements
         } else {
             LOGGER.debug("Non-stream serialization of {}", dataFormat.toString());
             final Model model = rdfStream.collect(toModel());
-            model.setNsPrefixes(nsPrefixes);
             // use block output streaming for RDFXML
             if (RDFXML.equals(dataFormat)) {
                 RDFDataMgr.write(output, model.getGraph(), RDFXML_PLAIN);

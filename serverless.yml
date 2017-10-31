@@ -46,6 +46,7 @@ functions:
           method: any
     onError:
       Ref: DeadLetterQueue
+    timeout: 20
 
 resources:
   Resources:

@@ -1,4 +1,4 @@
-package org.fcrepo.lambdora.service.db;
+package org.fcrepo.lambdora.common.test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ import static org.junit.Assert.assertEquals;
  * @author dbernstein
  * @author bbranan
  */
-public abstract class DynamoDbTestBase {
+public abstract class IntegrationTestBase {
 
     private static final String TABLE_NAME = "RESOURCE_TRIPLE";
     private static final String RESOURCE_NAME_ATT = "resource_name";
@@ -41,6 +41,9 @@ public abstract class DynamoDbTestBase {
 
     protected AmazonDynamoDB dynamodbClient = null;
 
+    /**
+     * setup
+     */
     @Before
     public void setup() {
         // Create an in-memory and in-process instance of DynamoDB Local that skips HTTP
@@ -95,6 +98,9 @@ public abstract class DynamoDbTestBase {
         return dynamodbClient.createTable(request);
     }
 
+    /**
+     * teardown
+     */
     @After
     public void tearDown() {
         // Shutdown the thread pools in DynamoDB Local / Embedded

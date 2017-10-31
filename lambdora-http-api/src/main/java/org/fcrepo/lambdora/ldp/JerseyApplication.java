@@ -12,6 +12,6 @@ public class JerseyApplication extends ResourceConfig {
      * Tell Jersey what packages to scan for annotations
      */
     public JerseyApplication() {
-        packages("org.fcrepo.lambdora.ldp");
+        packages("org.fcrepo");
     }
 }

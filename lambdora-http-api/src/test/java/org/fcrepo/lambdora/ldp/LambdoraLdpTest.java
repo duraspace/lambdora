@@ -6,7 +6,6 @@ import org.fcrepo.lambdora.service.api.Container;
 import org.fcrepo.lambdora.service.api.ContainerService;
 import org.fcrepo.lambdora.service.api.LambdoraApplication;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -64,9 +63,7 @@ public class LambdoraLdpTest {
      * Testing the get getResource method
      */
     @Test
-    @Ignore
     public void testGet() throws Exception {
-
         testObj.externalPath = "";
 
         final URI internalURI = URI.create("fedora://info/test");
@@ -89,7 +86,6 @@ public class LambdoraLdpTest {
 
     @Test
     public void testPostCreateContainer() throws Exception {
-
         testObj.externalPath = "";
 
         final String requestBody =
@@ -101,9 +97,11 @@ public class LambdoraLdpTest {
             "    rdf:type                       ldp:BasicContainer ;\n";
 
         final InputStream is = IOUtils.toInputStream(requestBody, Charset.defaultCharset());
-        final URI internalURI = URI.create("fedora://info/test");
-        when(this.mockContainerService.findOrCreate(internalURI)).thenReturn(mockContainer);
-        when(this.mockContainer.getIdentifier()).thenReturn(internalURI);
+        final URI internalURI = URI.create("fedora://info/");
+        when(this.mockContainerService.exists(internalURI)).thenReturn(true);
+        final URI newResourceURI = URI.create("fedora://info/test");
+        when(this.mockContainerService.findOrCreate(newResourceURI)).thenReturn(mockContainer);
+        when(this.mockContainer.getIdentifier()).thenReturn(newResourceURI);
         doNothing().when(this.mockContainer).updateTriples(any());
         when(this.mockUriInfo.getBaseUri()).thenReturn(URI.create("http://localhost"));
         final Response actual = testObj.createObject(null, null, "test", is,null,null);
@@ -111,9 +109,10 @@ public class LambdoraLdpTest {
         assertEquals("/test", actual.getLocation().getPath());
 
         verify(this.mockApplication).containerService();
-        verify(this.mockContainerService).findOrCreate(internalURI);
+        verify(this.mockContainerService).findOrCreate(newResourceURI);
         verify(this.mockContainer).getIdentifier();
         verify(this.mockContainer).updateTriples(any());
+        verify(this.mockContainerService).exists(internalURI);
     }
 
     @Before
@@ -126,6 +125,5 @@ public class LambdoraLdpTest {
 
         setField(testObj, "servletResponse", mockResponse);
         setField(testObj, "uriInfo", mockUriInfo);
-
     }
 }

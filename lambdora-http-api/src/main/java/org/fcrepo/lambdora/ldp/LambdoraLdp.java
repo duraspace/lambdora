@@ -10,11 +10,13 @@ import org.fcrepo.kernel.api.exception.MalformedRdfException;
 import org.fcrepo.kernel.api.rdf.DefaultRdfStream;
 import org.fcrepo.lambdora.service.api.Container;
 import org.fcrepo.lambdora.service.api.ContainerService;
+import org.fcrepo.lambdora.service.api.FedoraResource;
 import org.fcrepo.lambdora.service.api.LambdoraApplication;
 import org.fcrepo.lambdora.service.aws.DaggerAwsLambdoraApplication;
 import org.glassfish.jersey.media.multipart.ContentDisposition;
 import org.slf4j.Logger;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -32,15 +34,16 @@ import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static javax.ws.rs.core.HttpHeaders.CONTENT_DISPOSITION;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.HttpHeaders.LINK;
 import static javax.ws.rs.core.MediaType.WILDCARD;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.created;
 import static javax.ws.rs.core.Response.ok;
+import static javax.ws.rs.core.Response.status;
 import static org.apache.jena.graph.NodeFactory.createURI;
 import static org.fcrepo.http.commons.domain.RDFMediaType.JSON_LD;
 import static org.fcrepo.http.commons.domain.RDFMediaType.N3_ALT2_WITH_CHARSET;
@@ -62,6 +65,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class LambdoraLdp {
 
     private static final Logger LOGGER = getLogger(LambdoraLdp.class);
+    private final URI rootURI;
 
     @PathParam("path")
     protected String externalPath;
@@ -79,7 +83,12 @@ public class LambdoraLdp {
     @Context
     protected UriInfo uriInfo;
 
-    private LambdoraApplication application;
+    @Inject
+    LambdoraApplication application;
+
+
+    private ContainerService containerService;
+
 
     /**
      * Default JAX-RS entry point
@@ -94,7 +103,11 @@ public class LambdoraLdp {
      * @param application
      */
     public LambdoraLdp(final LambdoraApplication application) {
+        if (application == null) {
+            throw new IllegalArgumentException("application must be non-null");
+        }
         this.application = application;
+        this.rootURI = createFromPath("/");
     }
 
     /**
@@ -111,17 +124,31 @@ public class LambdoraLdp {
     public Response getResource(@HeaderParam("Range") final String rangeValue) throws IOException {
         LOGGER.info("GET: {}", externalPath);
 
-        final ContainerService containerService = this.application.containerService();
-
         final URI internalURI = createFromPath(externalPath);
 
-        final Container container = containerService.find(internalURI);
+        final Container container = getContainerService().find(internalURI);
         if (container == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            if (!isRoot(internalURI)) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            } else {
+                return getResource(createRoot(internalURI));
+            }
         }
 
+        return getResource(container);
+    }
+
+    private boolean isRoot(final URI internalURI) {
+        return internalURI.equals(rootURI);
+    }
+
+    private Container createRoot(final URI internalRootURI) {
+        return getContainerService().findOrCreate(internalRootURI);
+    }
+
+    private Response getResource(final FedoraResource resource) {
         final DefaultRdfStream stream =
-                new DefaultRdfStream(createURI(container.getIdentifier().toString()), container.getTriples());
+            new DefaultRdfStream(createURI(resource.getIdentifier().toString()), resource.getTriples());
         return ok(stream).build();
     }
 
@@ -159,35 +186,37 @@ public class LambdoraLdp {
             throws InvalidChecksumException, IOException, MalformedRdfException {
         LOGGER.info("POST: {}", externalPath);
 
-        final ContainerService containerService = this.application.containerService();
-        final URI objectURI = createFromPath(externalPath + slug);
-        final Container container = containerService.findOrCreate(objectURI);
+        final ContainerService containerService = getContainerService();
+        final URI resourceUri = createFromPath(externalPath);
+        //check that resource exists:
 
+
+        if (!containerService.exists(resourceUri)) {
+            if (!isRoot(resourceUri)) {
+                return status(NOT_FOUND).build();
+            } else {
+                createRoot(resourceUri);
+            }
+        }
+
+        final URI newResourceUri = createFromPath(resourceUri.getPath() + slug);
+        final Container container = containerService.findOrCreate(newResourceUri);
         final Model model = ModelFactory.createDefaultModel();
         model.read(requestBodyStream, null, "TTL");
-
-        final Stream<Triple> triples = model.listStatements().toList().stream().map(new Function<Statement, Triple>() {
-            @Override
-            public Triple apply(final Statement statement) {
-                return statement.asTriple();
-            }
-        });
-
+        final Stream<Triple> triples = model.listStatements().toList().stream().map(Statement::asTriple);
         container.updateTriples(triples);
-
         return created(toExternalURI(container.getIdentifier())).build();
     }
 
     private URI createFromPath(final String path) {
-        //@TODO this internal prefix should be changed
-        //      to something like "fedora:info/"
-        //      At the moment,  it is not clear how to use URI.getPath()
-        //      if the prefix is fedora:info/
-        return URI.create("fedora://info/" + path);
+        return URI.create("fedora://info" + (path.startsWith("/") ? path : "/" + path));
     }
 
     private URI toExternalURI(final URI uri) {
-        //TODO ensure the correctly translated URI is returned.
         return URI.create(uriInfo.getBaseUri().toString() + uri.getPath());
+    }
+
+    private ContainerService getContainerService() {
+        return this.application.containerService();
     }
 }

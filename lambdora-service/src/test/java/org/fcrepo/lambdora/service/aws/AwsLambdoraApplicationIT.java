@@ -83,6 +83,11 @@ public class AwsLambdoraApplicationIT extends IntegrationTestBase {
                 triple.getObject().getURI().equals("http://fedora.info/definitions/v4/repository#Resource")
             ));
 
+        assertTrue("object has fedora#created date",
+            container.getTriples().anyMatch(triple -> triple.getSubject().getURI().equals(identifier.toString()) &&
+                triple.getPredicate().getURI().equals("http://fedora.info/definitions/v4/repository#created")
+            ));
+
         assertTrue("identifier should exist", containerService.exists(identifier));
     }
 }

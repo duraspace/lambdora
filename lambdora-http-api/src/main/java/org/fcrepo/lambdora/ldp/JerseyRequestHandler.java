@@ -56,6 +56,7 @@ public class JerseyRequestHandler implements RequestHandler<AwsProxyRequest,AwsP
                          "\nQuery String Parameters={}" +
                          "\nStage Variables={}" +
                          "\nHeaders={}" +
+                         "\nBody={}",
                          "\ncontext.apiId={}" +
                          "\ncontext.accountId={}" +
                          "\ncontext.path={}" +

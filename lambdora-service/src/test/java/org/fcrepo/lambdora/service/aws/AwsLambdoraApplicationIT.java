@@ -57,21 +57,32 @@ public class AwsLambdoraApplicationIT extends IntegrationTestBase {
         final Container container = containerService.findOrCreate(identifier);
         assertEquals("identifiers are equal", identifier, container.getIdentifier());
         final AtomicInteger count = new AtomicInteger(0);
-        container.getTriples().forEach(triple -> {
-            assertEquals("subject matches identifier", identifier.toString(), triple.getSubject().getURI());
 
-            if (triple.getPredicate().getURI().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) {
-                if (triple.getObject().getURI().equals("http://www.w3.org/ns/ldp#Container")) {
-                    count.incrementAndGet();
+        // Check for all system-generated triples for a Container
+        assertTrue("object is ldp:Container",
+            container.getTriples().anyMatch(triple -> triple.getSubject().getURI().equals(identifier.toString()) &&
+                    triple.getPredicate().getURI().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type") &&
+                    triple.getObject().getURI().equals("http://www.w3.org/ns/ldp#Container")
+            ));
 
-                } else if (triple.getObject().getURI().equals("http://www.w3.org/ns/ldp#RDFSource")) {
-                    count.incrementAndGet();
-                }
-            }
+        assertTrue("object is ldp#RDFSource",
+            container.getTriples().anyMatch(triple -> triple.getSubject().getURI().equals(identifier.toString()) &&
+                triple.getPredicate().getURI().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type") &&
+                triple.getObject().getURI().equals("http://www.w3.org/ns/ldp#RDFSource")
+            ));
 
-        });
+        assertTrue("object is fedora#Container",
+            container.getTriples().anyMatch(triple -> triple.getSubject().getURI().equals(identifier.toString()) &&
+                triple.getPredicate().getURI().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type") &&
+                triple.getObject().getURI().equals("http://fedora.info/definitions/v4/repository#Container")
+            ));
 
-        assertEquals("has expected number of triples.", 2, count.get());
+        assertTrue("object is fedora#Resource",
+            container.getTriples().anyMatch(triple -> triple.getSubject().getURI().equals(identifier.toString()) &&
+                triple.getPredicate().getURI().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type") &&
+                triple.getObject().getURI().equals("http://fedora.info/definitions/v4/repository#Resource")
+            ));
+
         assertTrue("identifier should exist", containerService.exists(identifier));
     }
 }

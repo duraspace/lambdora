@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -79,6 +80,20 @@ public class LambdoraLdpIT extends IntegrationTestBase {
         final AwsProxyResponse response = handler.handleRequest(request, lambdaContext);
         assertEquals("resource should have been created", CREATED.getStatusCode(), response.getStatusCode());
         final AwsProxyResponse getResponse = handler.handleRequest(buildGetRequest("/rest/test"), lambdaContext);
+        assertEquals("newly created resource should exist", OK.getStatusCode(), getResponse.getStatusCode());
+    }
+
+    @Test
+    public void testCreateResourceWithNullSlug() {
+        final AwsProxyRequest request = buildRequest("/rest/", "POST");
+        final Map<String, String> headers = new HashMap<>();
+        request.setHeaders(headers);
+        final AwsProxyResponse response = handler.handleRequest(request, lambdaContext);
+        assertEquals("resource should have been created", CREATED.getStatusCode(), response.getStatusCode());
+        final String location = response.getHeaders().get("Location");
+        final AwsProxyResponse getResponse = handler.handleRequest(buildGetRequest(URI.create(location).getPath()),
+            lambdaContext);
+
         assertEquals("newly created resource should exist", OK.getStatusCode(), getResponse.getStatusCode());
     }
 

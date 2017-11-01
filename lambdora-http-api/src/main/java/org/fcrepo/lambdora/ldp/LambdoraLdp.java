@@ -34,6 +34,7 @@ import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static javax.ws.rs.core.HttpHeaders.CONTENT_DISPOSITION;
@@ -131,7 +132,7 @@ public class LambdoraLdp {
             if (!isRoot(internalURI)) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             } else {
-                return getResource(createRoot(internalURI));
+                return getResource(createRoot());
             }
         }
 
@@ -142,8 +143,8 @@ public class LambdoraLdp {
         return internalURI.equals(rootURI);
     }
 
-    private Container createRoot(final URI internalRootURI) {
-        return getContainerService().findOrCreate(internalRootURI);
+    private Container createRoot() {
+        return getContainerService().findOrCreate(rootURI);
     }
 
     private Response getResource(final FedoraResource resource) {
@@ -188,18 +189,19 @@ public class LambdoraLdp {
 
         final ContainerService containerService = getContainerService();
         final URI resourceUri = createFromPath(externalPath);
-        //check that resource exists:
 
-
+        //check that resource exists
         if (!containerService.exists(resourceUri)) {
             if (!isRoot(resourceUri)) {
                 return status(NOT_FOUND).build();
             } else {
-                createRoot(resourceUri);
+                createRoot();
             }
         }
 
-        final URI newResourceUri = createFromPath(resourceUri.getPath() + slug);
+        final String newResourceName = slug == null ? UUID.randomUUID().toString() : slug;
+        final String resourcePath = (isRoot(resourceUri) ? "" : resourceUri.getPath());
+        final URI newResourceUri = createFromPath(resourcePath + "/" + newResourceName);
         final Container container = containerService.findOrCreate(newResourceUri);
         final Model model = ModelFactory.createDefaultModel();
         model.read(requestBodyStream, null, "TTL");

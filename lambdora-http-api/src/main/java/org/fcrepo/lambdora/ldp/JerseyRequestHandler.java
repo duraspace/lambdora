@@ -1,5 +1,6 @@
 package org.fcrepo.lambdora.ldp;
 
+import com.amazonaws.serverless.proxy.internal.model.ApiGatewayRequestContext;
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
 import com.amazonaws.serverless.proxy.jersey.JerseyLambdaContainerHandler;
@@ -44,6 +45,8 @@ public class JerseyRequestHandler implements RequestHandler<AwsProxyRequest,AwsP
     @Override
     public AwsProxyResponse handleRequest(final AwsProxyRequest awsProxyRequest, final Context context) {
         // Captures the HTTP request in the log
+        final ApiGatewayRequestContext requestContext = awsProxyRequest.getRequestContext();
+
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("\n\n*********** BEGIN HTTP REQUEST ***********" +
                          "\nHTTP Method={}" +
@@ -53,7 +56,12 @@ public class JerseyRequestHandler implements RequestHandler<AwsProxyRequest,AwsP
                          "\nQuery String Parameters={}" +
                          "\nStage Variables={}" +
                          "\nHeaders={}" +
-                         "\nBody={}" +
+                         "\ncontext.apiId={}" +
+                         "\ncontext.accountId={}" +
+                         "\ncontext.path={}" +
+                         "\ncontext.resourceId={}" +
+                         "\ncontext.resourcePath={}" +
+                         "\ncontext.stage={}" +
                          "\n*********** END HTTP REQUEST ***********\n",
                          awsProxyRequest.getHttpMethod(),
                          awsProxyRequest.getPath(),
@@ -62,10 +70,16 @@ public class JerseyRequestHandler implements RequestHandler<AwsProxyRequest,AwsP
                          awsProxyRequest.getQueryStringParameters(),
                          awsProxyRequest.getStageVariables(),
                          awsProxyRequest.getHeaders(),
-                         awsProxyRequest.getBody());
+                         awsProxyRequest.getBody(),
+                         requestContext.getApiId(),
+                         requestContext.getAccountId(),
+                         requestContext.getPath(),
+                         requestContext.getResourceId(),
+                         requestContext.getResourcePath(),
+                         requestContext.getStage());
         }
 
-        handler.stripBasePath("/rest");
+        awsProxyRequest.getHeaders().put("context", requestContext.getStage());
         return handler.proxy(awsProxyRequest, context);
     }
 }

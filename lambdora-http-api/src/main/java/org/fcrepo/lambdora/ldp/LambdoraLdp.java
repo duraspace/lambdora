@@ -209,7 +209,7 @@ public class LambdoraLdp {
             model.read(requestBodyStream, null, "TTL");
             final Stream<Triple> triples = model.listStatements().toList().stream().map(Statement::asTriple);
             container.updateTriples(triples);
-            return created(toExternalURI(container.getIdentifier())).build();
+            return created(toExternalURI(container.getIdentifier(), headers)).build();
         } else {
             //TODO delete resource, create resource, and update triples.
             return noContent().build();
@@ -285,15 +285,18 @@ public class LambdoraLdp {
         model.read(requestBodyStream, null, "TTL");
         final Stream<Triple> triples = model.listStatements().toList().stream().map(Statement::asTriple);
         container.updateTriples(triples);
-        return created(toExternalURI(container.getIdentifier())).build();
+        return created(toExternalURI(container.getIdentifier(), headers)).build();
     }
 
     private URI createFromPath(final String path) {
         return URI.create("fedora://info" + (path.startsWith("/") ? path : "/" + path));
     }
 
-    private URI toExternalURI(final URI uri) {
-        return URI.create(uriInfo.getBaseUri().toString() + uri.getPath());
+    private URI toExternalURI(final URI uri, final HttpHeaders headers) {
+        final String host = headers.getHeaderString("Host");
+        final String protocol = headers.getHeaderString("X-Forwarded-Proto");
+        final String context = headers.getHeaderString("context");
+        return URI.create(protocol + "://" + host + "/" + context + uri.getPath());
     }
 
     private ContainerService getContainerService() {

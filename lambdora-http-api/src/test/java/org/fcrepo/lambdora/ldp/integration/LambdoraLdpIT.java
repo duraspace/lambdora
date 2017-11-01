@@ -14,7 +14,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,6 +36,10 @@ public class LambdoraLdpIT extends IntegrationTestBase {
 
     private JerseyRequestHandler handler;
 
+    private String context = "context";
+    private String protocol = "http";
+    private String host = "host";
+
     /**
      * Default constructor
      */
@@ -47,6 +50,7 @@ public class LambdoraLdpIT extends IntegrationTestBase {
     @Before
     public void setUp() {
         super.setup();
+
         final LambdoraApplication lambdoraApplication = DaggerAwsLambdoraApplication.builder()
             .awsServiceModule(new AwsServiceModule(this.dynamodbClient)).build();
         final JerseyApplication application = new JerseyApplication(lambdoraApplication);
@@ -56,7 +60,7 @@ public class LambdoraLdpIT extends IntegrationTestBase {
 
     @Test
     public void testGetRoot() {
-        final AwsProxyRequest request = buildGetRequest("/rest/");
+        final AwsProxyRequest request = buildGetRequest("/");
         final Map<String, String> headers = new HashMap<>();
         request.setHeaders(headers);
         final AwsProxyResponse response = handler.handleRequest(request, lambdaContext);
@@ -66,7 +70,7 @@ public class LambdoraLdpIT extends IntegrationTestBase {
 
     @Test
     public void testGetNonExistentResource() {
-        final AwsProxyRequest request = buildGetRequest("/rest/does-not-exist");
+        final AwsProxyRequest request = buildGetRequest("/does-not-exist");
         final Map<String, String> headers = new HashMap<>();
         request.setHeaders(headers);
         final AwsProxyResponse response = handler.handleRequest(request, lambdaContext);
@@ -76,19 +80,17 @@ public class LambdoraLdpIT extends IntegrationTestBase {
     @Test
     public void testCreateResource() {
         createResource("test");
-        final AwsProxyResponse getResponse = handler.handleRequest(buildGetRequest("/rest/test"), lambdaContext);
+        final AwsProxyResponse getResponse = handler.handleRequest(buildGetRequest("/test"), lambdaContext);
         assertEquals("newly created resource should exist", OK.getStatusCode(), getResponse.getStatusCode());
     }
 
     @Test
     public void testCreateResourceWithNullSlug() {
-        final AwsProxyRequest request = buildRequest("/rest/", "POST");
-        final Map<String, String> headers = new HashMap<>();
-        request.setHeaders(headers);
+        final AwsProxyRequest request = buildRequest("/", "POST");
         final AwsProxyResponse response = handler.handleRequest(request, lambdaContext);
         assertEquals("resource should have been created", CREATED.getStatusCode(), response.getStatusCode());
         final String location = response.getHeaders().get("Location");
-        final AwsProxyResponse getResponse = handler.handleRequest(buildGetRequest(URI.create(location).getPath()),
+        final AwsProxyResponse getResponse = handler.handleRequest(buildGetRequest(location.replace(getBaseUri(), "")),
             lambdaContext);
 
         assertEquals("newly created resource should exist", OK.getStatusCode(), getResponse.getStatusCode());
@@ -96,7 +98,7 @@ public class LambdoraLdpIT extends IntegrationTestBase {
 
     @Test
     public void testHeadOnRoot() {
-        final AwsProxyRequest request = buildRequest("/rest/", "HEAD");
+        final AwsProxyRequest request = buildRequest("/", "HEAD");
         final AwsProxyResponse response = handler.handleRequest(request, lambdaContext);
         assertEquals("root should allow head", OK.getStatusCode(), response.getStatusCode());
     }
@@ -104,28 +106,28 @@ public class LambdoraLdpIT extends IntegrationTestBase {
     @Test
     public void testHeadOnExistentResource() {
         createResource("test");
-        final AwsProxyRequest request2 = buildRequest("/rest/test", "HEAD");
+        final AwsProxyRequest request2 = buildRequest("/test", "HEAD");
         final AwsProxyResponse response2 = handler.handleRequest(request2, lambdaContext);
         assertEquals("resource should return OK on HEAD", OK.getStatusCode(), response2.getStatusCode());
     }
 
     @Test
     public void testHeadOnNonExistentResource() {
-        final AwsProxyRequest request = buildRequest("/rest/does-not-exist", "HEAD");
+        final AwsProxyRequest request = buildRequest("/does-not-exist", "HEAD");
         final AwsProxyResponse response = handler.handleRequest(request, lambdaContext);
         assertEquals("resource should not exist", NOT_FOUND.getStatusCode(), response.getStatusCode());
     }
 
     @Test
     public void testPutOnRoot() {
-        final AwsProxyRequest request = buildRequest("/rest/", "PUT");
+        final AwsProxyRequest request = buildRequest("/", "PUT");
         final AwsProxyResponse response = handler.handleRequest(request, lambdaContext);
         assertEquals("root should allow put", METHOD_NOT_ALLOWED.getStatusCode(), response.getStatusCode());
     }
 
     @Test
     public void testPutOnNonExistentResource() {
-        final AwsProxyRequest request = buildRequest("/rest/test", "PUT");
+        final AwsProxyRequest request = buildRequest("/test", "PUT");
         final AwsProxyResponse response = handler.handleRequest(request, lambdaContext);
         assertEquals("new resource should allow put", CREATED.getStatusCode(), response.getStatusCode());
     }
@@ -134,25 +136,37 @@ public class LambdoraLdpIT extends IntegrationTestBase {
     public void testPutOnExistentResource() {
         final String resource = "resource";
         createResource(resource);
-        final AwsProxyRequest request = buildRequest("/rest/" + resource, "PUT");
+        final AwsProxyRequest request = buildRequest("/" + resource, "PUT");
         final AwsProxyResponse response = handler.handleRequest(request, lambdaContext);
         assertEquals("resource should return NO_CONTENT on PUT", NO_CONTENT.getStatusCode(), response.getStatusCode());
     }
 
     private void createResource(final String resourcePath) {
-        final AwsProxyRequest request1 = buildRequest("/rest/", "POST");
+        final AwsProxyRequest request1 = buildRequest("/", "POST");
         final Map<String, String> headers = new HashMap<>();
         headers.put("Slug", resourcePath);
-        request1.setHeaders(headers);
+        request1.getHeaders().putAll(headers);
         final AwsProxyResponse response1 = handler.handleRequest(request1, lambdaContext);
+        assertEquals("location header is not correct",
+            getBaseUri() + "/" + resourcePath,
+            response1.getHeaders().get("Location"));
         assertEquals("resource should have been created", CREATED.getStatusCode(), response1.getStatusCode());
     }
 
     private AwsProxyRequest buildRequest(final String path, final String method) {
-        return new AwsProxyRequestBuilder(path, method).build();
+
+        return new AwsProxyRequestBuilder(path, method)
+            .serverName(host)
+            .stage(context)
+            .header("X-Forwarded-Proto", protocol)
+            .build();
+    }
+
+    private String getBaseUri() {
+        return protocol + "://" + host + "/" + context;
     }
 
     private AwsProxyRequest buildGetRequest(final String path) {
-        return new AwsProxyRequestBuilder(path, "GET").build();
+        return buildRequest(path, "GET");
     }
 }

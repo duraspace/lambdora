@@ -7,6 +7,7 @@ import org.apache.jena.rdf.model.Statement;
 import org.fcrepo.http.commons.domain.ContentLocation;
 import org.fcrepo.kernel.api.exception.InvalidChecksumException;
 import org.fcrepo.kernel.api.exception.MalformedRdfException;
+import org.fcrepo.kernel.api.exception.UnsupportedAlgorithmException;
 import org.fcrepo.kernel.api.rdf.DefaultRdfStream;
 import org.fcrepo.lambdora.service.api.Container;
 import org.fcrepo.lambdora.service.api.ContainerService;
@@ -20,8 +21,10 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -34,6 +37,7 @@ import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -41,8 +45,10 @@ import static javax.ws.rs.core.HttpHeaders.CONTENT_DISPOSITION;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.HttpHeaders.LINK;
 import static javax.ws.rs.core.MediaType.WILDCARD;
+import static javax.ws.rs.core.Response.Status.METHOD_NOT_ALLOWED;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.created;
+import static javax.ws.rs.core.Response.noContent;
 import static javax.ws.rs.core.Response.ok;
 import static javax.ws.rs.core.Response.status;
 import static org.apache.jena.graph.NodeFactory.createURI;
@@ -138,6 +144,78 @@ public class LambdoraLdp {
 
         return getResource(container);
     }
+
+    /**
+     * Retrieve the resource headers
+     *
+     * @return response
+     */
+    @HEAD
+    @Produces({TURTLE_WITH_CHARSET + ";qs=1.0", JSON_LD + ";qs=0.8",
+        N3_WITH_CHARSET, N3_ALT2_WITH_CHARSET, RDF_XML, NTRIPLES, TEXT_PLAIN_WITH_CHARSET,
+        TURTLE_X, TEXT_HTML_WITH_CHARSET})
+    public Response head() throws UnsupportedAlgorithmException {
+        LOGGER.info("HEAD for: {}", externalPath);
+
+        final URI internalUri = createFromPath(externalPath);
+
+        final Container container = getContainerService().find(internalUri);
+
+        if (container == null) {
+            if (!isRoot(internalUri)) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+        }
+        return ok().build();
+    }
+
+
+    /**
+     * Create a resource at a specified path, or replace triples with provided RDF.
+     *
+     * @param requestContentType the request content type
+     * @param requestBodyStream  the request body stream
+     * @param contentDisposition the content disposition value
+     * @param ifMatch            the if-match value
+     * @param links              the link values
+     * @param digest             the digest header
+     * @return 204
+     * @throws InvalidChecksumException      if invalid checksum exception occurred
+     * @throws MalformedRdfException         if malformed rdf exception occurred
+     * @throws UnsupportedAlgorithmException
+     */
+    @PUT
+    @Consumes
+    public Response createOrReplaceObjectRdf(
+        @HeaderParam(CONTENT_TYPE) final MediaType requestContentType,
+        @ContentLocation final InputStream requestBodyStream,
+        @HeaderParam(CONTENT_DISPOSITION) final ContentDisposition contentDisposition,
+        @HeaderParam("If-Match") final String ifMatch,
+        @HeaderParam(LINK) final List<String> links,
+        @HeaderParam("Digest") final String digest)
+        throws InvalidChecksumException, MalformedRdfException, UnsupportedAlgorithmException {
+
+        final URI internalUri = createFromPath(externalPath);
+        if (isRoot(internalUri)) {
+            //method not allowed if root
+            return Response.status(METHOD_NOT_ALLOWED).build();
+        }
+
+        final ContainerService containerService = getContainerService();
+        //create resource if exists
+        if (!containerService.exists(internalUri)) {
+            final Container container = containerService.findOrCreate(internalUri);
+            final Model model = ModelFactory.createDefaultModel();
+            model.read(requestBodyStream, null, "TTL");
+            final Stream<Triple> triples = model.listStatements().toList().stream().map(Statement::asTriple);
+            container.updateTriples(triples);
+            return created(toExternalURI(container.getIdentifier())).build();
+        } else {
+            //TODO delete resource, create resource, and update triples.
+            return noContent().build();
+        }
+    }
+
 
     private boolean isRoot(final URI internalURI) {
         return internalURI.equals(rootURI);

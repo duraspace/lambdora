@@ -97,9 +97,6 @@ public class LambdoraLdp {
 
     private static final String INTERNAL_URI_PREFIX = "fedora://info";
 
-    private ContainerService containerService;
-
-
     /**
      * Default JAX-RS entry point
      */
@@ -234,7 +231,7 @@ public class LambdoraLdp {
                 resource.getTriples().map(new Function<Triple, Triple>() {
                     @Override
                     public Triple apply(final Triple triple) {
-                        return translateToInternalToExternalUris(triple);
+                        return translateToExternalUris(triple);
                     }
                 }));
         return ok(stream).build();
@@ -298,12 +295,12 @@ public class LambdoraLdp {
         return created(toExternalURI(container.getIdentifier(), headers)).build();
     }
 
-    private Triple translateToInternalToExternalUris(final Triple triple) {
-        return new Triple(translate(triple.getSubject()), translate(triple.getPredicate()),
-            translate(triple.getObject()));
+    private Triple translateToExternalUris(final Triple triple) {
+        return new Triple(translateToExternalUri(triple.getSubject()), translateToExternalUri(triple.getPredicate()),
+            translateToExternalUri(triple.getObject()));
     }
 
-    private Node translate(final Node node) {
+    private Node translateToExternalUri(final Node node) {
         if (node.isURI()) {
             final String uri = node.getURI();
             if (uri.startsWith(INTERNAL_URI_PREFIX)) {

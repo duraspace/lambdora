@@ -228,12 +228,7 @@ public class LambdoraLdp {
     private Response getResource(final FedoraResource resource) {
         final DefaultRdfStream stream =
             new DefaultRdfStream(createURI(toExternalURI(resource.getIdentifier(), headers).toString()),
-                resource.getTriples().map(new Function<Triple, Triple>() {
-                    @Override
-                    public Triple apply(final Triple triple) {
-                        return translateToExternalUris(triple);
-                    }
-                }));
+                resource.getTriples().map(translateToExternalUris));
         return ok(stream).build();
     }
 
@@ -295,10 +290,10 @@ public class LambdoraLdp {
         return created(toExternalURI(container.getIdentifier(), headers)).build();
     }
 
-    private Triple translateToExternalUris(final Triple triple) {
-        return new Triple(translateToExternalUri(triple.getSubject()), translateToExternalUri(triple.getPredicate()),
-            translateToExternalUri(triple.getObject()));
-    }
+    private Function<Triple, Triple> translateToExternalUris = triple ->
+        new Triple(translateToExternalUri(triple.getSubject()),
+                translateToExternalUri(triple.getPredicate()),
+                translateToExternalUri(triple.getObject()));
 
     private Node translateToExternalUri(final Node node) {
         if (node.isURI()) {

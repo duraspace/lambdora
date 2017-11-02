@@ -4,6 +4,8 @@ import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
 import com.amazonaws.serverless.proxy.internal.testutils.AwsProxyRequestBuilder;
 import com.amazonaws.serverless.proxy.internal.testutils.MockLambdaContext;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.fcrepo.lambdora.common.test.IntegrationTestBase;
 import org.fcrepo.lambdora.ldp.JerseyApplication;
 import org.fcrepo.lambdora.ldp.JerseyRequestHandler;
@@ -14,6 +16,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,6 +26,7 @@ import static javax.ws.rs.core.Response.Status.METHOD_NOT_ALLOWED;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 import static javax.ws.rs.core.Response.Status.OK;
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -84,6 +89,31 @@ public class LambdoraLdpIT extends IntegrationTestBase {
         assertEquals("newly created resource should exist", OK.getStatusCode(), getResponse.getStatusCode());
     }
 
+
+    @Test
+    public void testCreateContainerWithTriples() {
+
+        final String body = "<> <http://purl.org/dc/elements/1.1/title> 'A Title' ; " +
+                      "<http://www.openarchives.org/ore/terms/proxyFor> " +
+                           "<http://sweetclipart.com/multisite/sweetclipart/files/monkey_with_banana.png> ; " +
+                      "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> " +
+                           "<http://www.openarchives.org/ore/terms/Proxy> . ";
+
+        createResource("test", body);
+        final AwsProxyResponse getResponse = handler.handleRequest(buildGetRequest("/test"), lambdaContext);
+
+        final Model model = ModelFactory.createDefaultModel();
+        final String responseBody = getResponse.getBody();
+        model.read(new ByteArrayInputStream(responseBody.getBytes(Charset.defaultCharset())), "", "TTL");
+        model.listStatements().forEachRemaining(x -> {
+            if (x.getPredicate().getURI().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) {
+                assertEquals("subjects of rdf type predicates should equal the resource URI",
+                    getBaseUri() + "/test", x.getSubject().getURI());
+            }
+        });
+        assertEquals("newly created resource should exist", OK.getStatusCode(), getResponse.getStatusCode());
+    }
+
     @Test
     public void testCreateResourceWithNullSlug() {
         final AwsProxyRequest request = buildRequest("/", "POST");
@@ -93,6 +123,8 @@ public class LambdoraLdpIT extends IntegrationTestBase {
         final AwsProxyResponse getResponse = handler.handleRequest(buildGetRequest(location.replace(getBaseUri(), "")),
             lambdaContext);
 
+        assertTrue("rdf should not contain any references to internal base uri." ,
+            !getResponse.getBody().contains("fedora://info"));
         assertEquals("newly created resource should exist", OK.getStatusCode(), getResponse.getStatusCode());
     }
 
@@ -141,16 +173,21 @@ public class LambdoraLdpIT extends IntegrationTestBase {
         assertEquals("resource should return NO_CONTENT on PUT", NO_CONTENT.getStatusCode(), response.getStatusCode());
     }
 
-    private void createResource(final String resourcePath) {
+    private String createResource(final String resourcePath) {
+        return createResource(resourcePath, null);
+    }
+
+    private String createResource(final String resourcePath, final String requestBody) {
         final AwsProxyRequest request1 = buildRequest("/", "POST");
         final Map<String, String> headers = new HashMap<>();
         headers.put("Slug", resourcePath);
         request1.getHeaders().putAll(headers);
+        request1.setBody(requestBody);
         final AwsProxyResponse response1 = handler.handleRequest(request1, lambdaContext);
-        assertEquals("location header is not correct",
-            getBaseUri() + "/" + resourcePath,
-            response1.getHeaders().get("Location"));
+        final String location = response1.getHeaders().get("Location");
+        assertEquals("location header is not correct",getBaseUri() + "/" + resourcePath, location);
         assertEquals("resource should have been created", CREATED.getStatusCode(), response1.getStatusCode());
+        return location;
     }
 
     private AwsProxyRequest buildRequest(final String path, final String method) {

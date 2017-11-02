@@ -1,5 +1,6 @@
 package org.fcrepo.lambdora.ldp;
 
+import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -39,6 +40,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static javax.ws.rs.core.HttpHeaders.CONTENT_DISPOSITION;
@@ -93,9 +95,7 @@ public class LambdoraLdp {
     @Inject
     LambdoraApplication application;
 
-
-    private ContainerService containerService;
-
+    private static final String INTERNAL_URI_PREFIX = "fedora://info";
 
     /**
      * Default JAX-RS entry point
@@ -227,7 +227,13 @@ public class LambdoraLdp {
 
     private Response getResource(final FedoraResource resource) {
         final DefaultRdfStream stream =
-            new DefaultRdfStream(createURI(resource.getIdentifier().toString()), resource.getTriples());
+            new DefaultRdfStream(createURI(toExternalURI(resource.getIdentifier(), headers).toString()),
+                resource.getTriples().map(new Function<Triple, Triple>() {
+                    @Override
+                    public Triple apply(final Triple triple) {
+                        return translateToExternalUris(triple);
+                    }
+                }));
         return ok(stream).build();
     }
 
@@ -282,14 +288,30 @@ public class LambdoraLdp {
         final URI newResourceUri = createFromPath(resourcePath + "/" + newResourceName);
         final Container container = containerService.findOrCreate(newResourceUri);
         final Model model = ModelFactory.createDefaultModel();
-        model.read(requestBodyStream, null, "TTL");
+
+        model.read(requestBodyStream, container.getIdentifier().toString(), "TTL");
         final Stream<Triple> triples = model.listStatements().toList().stream().map(Statement::asTriple);
         container.updateTriples(triples);
         return created(toExternalURI(container.getIdentifier(), headers)).build();
     }
 
+    private Triple translateToExternalUris(final Triple triple) {
+        return new Triple(translateToExternalUri(triple.getSubject()), translateToExternalUri(triple.getPredicate()),
+            translateToExternalUri(triple.getObject()));
+    }
+
+    private Node translateToExternalUri(final Node node) {
+        if (node.isURI()) {
+            final String uri = node.getURI();
+            if (uri.startsWith(INTERNAL_URI_PREFIX)) {
+                return createURI(toExternalURI(URI.create(uri), headers).toString());
+            }
+        }
+        return node;
+    }
+
     private URI createFromPath(final String path) {
-        return URI.create("fedora://info" + (path.startsWith("/") ? path : "/" + path));
+        return URI.create(INTERNAL_URI_PREFIX + (path.startsWith("/") ? path : "/" + path));
     }
 
     private URI toExternalURI(final URI uri, final HttpHeaders headers) {

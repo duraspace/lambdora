@@ -59,14 +59,19 @@ public class AwsLambdoraApplicationIT extends IntegrationTestBase {
         final AtomicInteger count = new AtomicInteger(0);
         container.getTriples().forEach(triple -> {
             assertEquals("subject matches identifier", identifier.toString(), triple.getSubject().getURI());
-            assertEquals("predicate is rdf:type", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-                triple.getPredicate().getURI());
-            assertEquals("object is ldp:Container", "http://www.w3.org/ns/ldp#Container",
-                triple.getObject().getLiteral().toString());
-            count.incrementAndGet();
+
+            if (triple.getPredicate().getURI().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) {
+                if (triple.getObject().getURI().equals("http://www.w3.org/ns/ldp#Container")) {
+                    count.incrementAndGet();
+
+                } else if (triple.getObject().getURI().equals("http://www.w3.org/ns/ldp#RDFSource")) {
+                    count.incrementAndGet();
+                }
+            }
+
         });
 
-        assertEquals("has expected number of triples.", 1, count.get());
+        assertEquals("has expected number of triples.", 2, count.get());
         assertTrue("identifier should exist", containerService.exists(identifier));
     }
 }

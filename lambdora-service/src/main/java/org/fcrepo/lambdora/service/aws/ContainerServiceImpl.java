@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 
 import java.net.URI;
 
-import static org.apache.jena.graph.NodeFactory.createLiteral;
 import static org.apache.jena.graph.NodeFactory.createURI;
 import static org.fcrepo.lambdora.service.util.TripleUtil.toResourceTriple;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -34,11 +33,15 @@ public class ContainerServiceImpl extends FedoraResourceServiceBase<Container> i
         LOGGER.debug("Create: {}", identifier);
 
         final ResourceTripleDao dao = getResourceTripleDao();
-        final Triple t = new Triple(createURI(identifier.toString()),
-            createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
-            createLiteral("http://www.w3.org/ns/ldp#Container"));
+        dao.addResourceTriple(toResourceTriple(identifier,
+            new Triple(createURI(identifier.toString()),
+                       createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
+                       createURI("http://www.w3.org/ns/ldp#Container"))));
+        dao.addResourceTriple(toResourceTriple(identifier,
+            new Triple(createURI(identifier.toString()),
+                createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
+                createURI("http://www.w3.org/ns/ldp#RDFSource"))));
 
-        dao.addResourceTriple(toResourceTriple(identifier, t));
         //TODO recursively create parents if do not exist, adding ldp:contains with a reference to child
         final Container container =  new ContainerImpl(identifier, dao);
         return container;

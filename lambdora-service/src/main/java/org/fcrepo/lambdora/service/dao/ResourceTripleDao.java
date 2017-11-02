@@ -30,6 +30,12 @@ public interface ResourceTripleDao {
                                   String rdfObject);
 
     /**
+     * Remove a ResourceTriple from the database
+     * @param triple ResourceTriple
+     */
+    public void deleteResourceTriple(ResourceTriple triple);
+
+    /**
      * Get list of triples based on the RDF object uri
      *
      * @param rdfObject uri

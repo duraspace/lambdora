@@ -52,7 +52,9 @@ public class AwsLambdoraApplicationIT extends IntegrationTestBase {
     @Test
     public void testContainerServiceRoundTrip() {
         final ContainerService containerService = application.containerService();
-        final URI identifier = URI.create("fcrepo:info/test");
+        final URI identifier = URI.create("fedora://info/test");
+        final URI parent = URI.create("fedora://info/");
+
         assertFalse("identifier should not exist", containerService.exists(identifier));
         final Container container = containerService.findOrCreate(identifier);
         assertEquals("identifiers are equal", identifier, container.getIdentifier());
@@ -86,6 +88,12 @@ public class AwsLambdoraApplicationIT extends IntegrationTestBase {
         assertTrue("object has fedora#created date",
             container.getTriples().anyMatch(triple -> triple.getSubject().getURI().equals(identifier.toString()) &&
                 triple.getPredicate().getURI().equals("http://fedora.info/definitions/v4/repository#created")
+            ));
+
+        assertTrue("object has fedora#hasParent",
+            container.getTriples().anyMatch(triple -> triple.getSubject().getURI().equals(identifier.toString()) &&
+                triple.getPredicate().getURI().equals("http://fedora.info/definitions/v4/repository#hasParent") &&
+                triple.getObject().getURI().equals(parent.toString())
             ));
 
         assertTrue("identifier should exist", containerService.exists(identifier));

@@ -115,4 +115,28 @@ public class DynamoDBResourceTripleDaoTest extends IntegrationTestBase {
 
     }
 
+    /**
+     * Tests deleting a triple
+     */
+    @Test
+    public void testDeleteResourceTriple() {
+        List<ResourceTriple> resultList =
+            resourceTripleDao.findByResourceName(resource1);
+        assertEquals(2, resultList.size());
+
+        // Delete the first of two triples with subject = resource1
+        resourceTripleDao.deleteResourceTriple(resultList.get(0));
+
+        // Verify there is one left
+        resultList = resourceTripleDao.findByResourceName(resource1);
+        assertEquals(1, resultList.size());
+
+        // Delete the second triple with subject = resource 1
+        resourceTripleDao.deleteResourceTriple(resultList.get(0));
+
+        // Verify there are 0 left
+        resultList = resourceTripleDao.findByResourceName(resource1);
+        assertEquals(0, resultList.size());
+    }
+
 }

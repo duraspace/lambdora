@@ -59,6 +59,14 @@ public class DynamoDBResourceTripleDao implements ResourceTripleDao {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void deleteResourceTriple(final ResourceTriple triple) {
+        mapper.delete(triple);
+    }
+
+    /**
      * Get List of triples based on the RDF object uri. The List returned is a
      * {@code com.amazonaws.services.dynamodbv2.datamodeling.PaginatedQueryList}, which loads List items on demand
      * (as List is iterated through). Be aware that List methods requiring full iteration (e.g. size()) will

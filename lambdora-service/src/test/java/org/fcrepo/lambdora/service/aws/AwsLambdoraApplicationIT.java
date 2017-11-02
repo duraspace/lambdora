@@ -52,7 +52,9 @@ public class AwsLambdoraApplicationIT extends IntegrationTestBase {
     @Test
     public void testContainerServiceRoundTrip() {
         final ContainerService containerService = application.containerService();
-        final URI identifier = URI.create("fcrepo:info/test");
+        final URI identifier = URI.create("fedora://info/test");
+        final URI parent = URI.create("fedora://info/");
+
         assertFalse("identifier should not exist", containerService.exists(identifier));
         final Container container = containerService.findOrCreate(identifier);
         assertEquals("identifiers are equal", identifier, container.getIdentifier());
@@ -63,15 +65,19 @@ public class AwsLambdoraApplicationIT extends IntegrationTestBase {
             if (triple.getPredicate().getURI().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) {
                 if (triple.getObject().getURI().equals("http://www.w3.org/ns/ldp#Container")) {
                     count.incrementAndGet();
-
-                } else if (triple.getObject().getURI().equals("http://www.w3.org/ns/ldp#RDFSource")) {
+                    } else if (triple.getObject().getURI().equals("http://www.w3.org/ns/ldp#RDFSource")) {
                     count.incrementAndGet();
                 }
             }
 
+            if (triple.getPredicate().getURI().equals("http://fedora.info/definitions/v4/repository#hasParent")) {
+                assertEquals("has correct parent", parent.toString(), triple.getObject().getURI());
+                count.incrementAndGet();
+            }
+
         });
 
-        assertEquals("has expected number of triples.", 2, count.get());
+        assertEquals("has expected number of triples.", 3, count.get());
         assertTrue("identifier should exist", containerService.exists(identifier));
     }
 }

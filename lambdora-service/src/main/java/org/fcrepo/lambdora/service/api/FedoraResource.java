@@ -34,4 +34,10 @@ public interface FedoraResource {
      */
     void updateTriples(Stream<Triple> triples);
 
+    /**
+     * Returns parent or null (in the case that the root resource is being interrogated)
+     *
+     * @return
+     */
+    URI getParent();
 }

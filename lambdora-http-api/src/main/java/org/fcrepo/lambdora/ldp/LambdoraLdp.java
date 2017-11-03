@@ -5,6 +5,7 @@ import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.riot.WebContent;
 import org.fcrepo.http.commons.domain.ContentLocation;
 import org.fcrepo.kernel.api.exception.InvalidChecksumException;
 import org.fcrepo.kernel.api.exception.MalformedRdfException;
@@ -24,6 +25,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -313,6 +315,21 @@ public class LambdoraLdp {
         final String protocol = headers.getHeaderString("X-Forwarded-Proto");
         final String context = headers.getHeaderString("context");
         return URI.create(protocol + "://" + host + "/" + context + uri.getPath());
+    }
+
+    /**
+     * Update an object using SPARQL-UPDATE
+     *
+     * @param requestBodyStream SPARQL-update request
+     * @return
+     */
+    @PATCH
+    @Consumes({WebContent.contentTypeSPARQLUpdate})
+    public Response createObject(@ContentLocation final InputStream requestBodyStream) {
+
+        // TODO: Parse and persist the changes indicated in the sparql-update
+
+        return noContent().build();
     }
 
     private ContainerService getContainerService() {

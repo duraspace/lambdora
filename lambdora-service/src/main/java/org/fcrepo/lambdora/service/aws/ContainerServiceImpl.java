@@ -14,6 +14,15 @@ import java.util.List;
 
 import static org.apache.jena.graph.NodeFactory.createLiteral;
 import static org.apache.jena.graph.NodeFactory.createURI;
+import static org.fcrepo.lambdora.common.rdf.RdfLexicon.CONTAINER;
+import static org.fcrepo.lambdora.common.rdf.RdfLexicon.CONTAINS;
+import static org.fcrepo.lambdora.common.rdf.RdfLexicon.CREATED_DATE;
+import static org.fcrepo.lambdora.common.rdf.RdfLexicon.HAS_PARENT;
+import static org.fcrepo.lambdora.common.rdf.RdfLexicon.RDF_SOURCE;
+import static org.fcrepo.lambdora.common.rdf.RdfLexicon.TYPE;
+import static org.fcrepo.lambdora.common.rdf.RdfLexicon.FEDORA_CONTAINER;
+import static org.fcrepo.lambdora.common.rdf.RdfLexicon.FEDORA_RESOURCE;
+
 import static org.fcrepo.lambdora.common.utils.UriUtils.getParent;
 import static org.fcrepo.lambdora.service.util.TripleUtil.toResourceTriple;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -52,12 +61,12 @@ public class ContainerServiceImpl extends FedoraResourceServiceBase<Container> i
 
             dao.addResourceTriple(toResourceTriple(identifier,
                 new Triple(identifierNode,
-                    createURI("http://fedora.info/definitions/v4/repository#hasParent"),
+                    HAS_PARENT.asNode(),
                     parentNode)));
 
             dao.addResourceTriple(toResourceTriple(parent,
                 new Triple(parentNode,
-                    createURI("http://www.w3.org/ns/ldp#contains"),
+                    CONTAINS.asNode(),
                     identifierNode)));
 
         }
@@ -78,27 +87,27 @@ public class ContainerServiceImpl extends FedoraResourceServiceBase<Container> i
 
         // rdf:type = ldp:container
         triples.add(new Triple(subject,
-            createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
-            createURI("http://www.w3.org/ns/ldp#Container")));
+            TYPE.asNode(),
+            CONTAINER.asNode()));
 
         // rdf:type = ldp:resource
         triples.add(new Triple(subject,
-            createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
-            createURI("http://www.w3.org/ns/ldp#RDFSource")));
+            TYPE.asNode(),
+            RDF_SOURCE.asNode()));
 
         // rdf:type = fedora:container
         triples.add(new Triple(subject,
-            createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
-            createURI("http://fedora.info/definitions/v4/repository#Container")));
+            TYPE.asNode(),
+            FEDORA_CONTAINER.asNode()));
 
         // rdf:type = fedora:resource
         triples.add(new Triple(subject,
-            createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
-            createURI("http://fedora.info/definitions/v4/repository#Resource")));
+            TYPE.asNode(),
+            FEDORA_RESOURCE.asNode()));
 
         // fedora:created = now
         triples.add(new Triple(subject,
-            createURI("http://fedora.info/definitions/v4/repository#created"),
+            CREATED_DATE.asNode(),
             createLiteral(Instant.now().toString())));
 
         return triples;

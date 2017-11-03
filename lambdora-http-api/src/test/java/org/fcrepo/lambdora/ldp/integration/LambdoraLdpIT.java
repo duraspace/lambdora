@@ -219,6 +219,17 @@ public class LambdoraLdpIT extends IntegrationTestBase {
         assertEquals("resource should return NO_CONTENT on PUT", NO_CONTENT.getStatusCode(), response.getStatusCode());
     }
 
+    @Test
+    public void testPatch() {
+        final String resource = "resource";
+        createResource(resource);
+        final AwsProxyRequest request = buildPatchRequest("/" + resource, "PATCH");
+        final AwsProxyResponse response = handler.handleRequest(request, lambdaContext);
+        assertEquals("resource should return NO_CONTENT on PATCH",
+                     NO_CONTENT.getStatusCode(),
+                     response.getStatusCode());
+    }
+
     private String createResource(final String resourcePath) {
         return createResource(resourcePath, null);
     }
@@ -242,6 +253,15 @@ public class LambdoraLdpIT extends IntegrationTestBase {
             .serverName(host)
             .stage(context)
             .header("X-Forwarded-Proto", protocol)
+            .build();
+    }
+
+    private AwsProxyRequest buildPatchRequest(final String path, final String method) {
+
+        return new AwsProxyRequestBuilder(path, method)
+            .serverName(host)
+            .stage(context)
+            .header("Content-Type", "application/sparql-update")
             .build();
     }
 

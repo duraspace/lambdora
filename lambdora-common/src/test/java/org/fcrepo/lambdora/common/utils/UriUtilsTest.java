@@ -6,7 +6,7 @@ import java.net.URI;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNull;
-import static org.fcrepo.lambdora.common.utils.UriUtils.INTERNAL_URI_PREFIX;
+import static org.fcrepo.lambdora.common.rdf.RdfLexicon.INTERNAL_URI_PREFIX;
 
 /**
  * UriUtils

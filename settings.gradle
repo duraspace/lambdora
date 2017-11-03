@@ -1,5 +1,5 @@
 include 'lambdora-common'
-include 'lambdora-http-api'
-include 'lambdora-service'
 include 'lambdora-common-test'
+include 'lambdora-service'
+include 'lambdora-http-api'
 

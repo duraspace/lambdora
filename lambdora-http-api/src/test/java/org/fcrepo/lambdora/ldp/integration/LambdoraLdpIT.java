@@ -29,6 +29,11 @@ import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 import static javax.ws.rs.core.Response.Status.OK;
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
+import static org.fcrepo.lambdora.common.rdf.RdfLexicon.HAS_PARENT;
+import static org.fcrepo.lambdora.common.rdf.RdfLexicon.INTERNAL_URI_PREFIX;
+import static org.fcrepo.lambdora.common.rdf.RdfLexicon.TYPE;
+import static org.fcrepo.lambdora.common.rdf.RdfLexicon.CONTAINS;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -76,7 +81,7 @@ public class LambdoraLdpIT extends IntegrationTestBase {
         final AtomicInteger count = new AtomicInteger();
         model.listStatements().forEachRemaining(x -> {
             assertFalse("Root should have not parent", x.getPredicate().getURI().equals(
-                "http://fedora.info/definitions/v4/repository#hasParent"));
+                HAS_PARENT.getURI()));
             count.incrementAndGet();
         });
     }
@@ -113,12 +118,12 @@ public class LambdoraLdpIT extends IntegrationTestBase {
 
         final Model model = createModel(getResponse);
         model.listStatements().forEachRemaining(x -> {
-            if (x.getPredicate().getURI().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) {
+            if (x.getPredicate().getURI().equals(TYPE.getURI())) {
                 assertEquals("subjects of rdf type predicates should equal the resource URI",
                     getBaseUri() + "/test", x.getSubject().getURI());
             }
 
-            if (x.getPredicate().getURI().equals("http://fedora.info/definitions/v4/repository#hasParent")) {
+            if (x.getPredicate().getURI().equals(HAS_PARENT.getURI())) {
                 assertEquals("subjects of rdf type predicates should equal the resource URI",
                     getBaseUri() + "/", x.getObject().asResource().getURI());
             }
@@ -144,7 +149,7 @@ public class LambdoraLdpIT extends IntegrationTestBase {
         final Model model = createModel(response);
         final AtomicInteger count = new AtomicInteger();
         model.listStatements().forEachRemaining(x -> {
-            if (x.getPredicate().getURI().equals("http://www.w3.org/ns/ldp#contains")) {
+            if (x.getPredicate().getURI().equals(CONTAINS.getURI())) {
                 assertEquals("subjects of rdf type predicates should equal the resource URI",
                     containedUri, x.getObject().asResource().getURI());
                 count.incrementAndGet();
@@ -170,7 +175,7 @@ public class LambdoraLdpIT extends IntegrationTestBase {
             lambdaContext);
 
         assertTrue("rdf should not contain any references to internal base uri.",
-            !getResponse.getBody().contains("fedora://info"));
+            !getResponse.getBody().contains(INTERNAL_URI_PREFIX));
         assertEquals("newly created resource should exist", OK.getStatusCode(), getResponse.getStatusCode());
     }
 

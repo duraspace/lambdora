@@ -12,6 +12,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.net.URI;
 import java.util.Arrays;
 
+import static org.fcrepo.lambdora.common.rdf.RdfLexicon.HAS_PARENT;
+import static org.fcrepo.lambdora.common.rdf.RdfLexicon.INTERNAL_URI_PREFIX;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.when;
@@ -30,19 +32,17 @@ public class FedoraResourceImplTest {
     private URI uri;
     private URI parent;
 
-    private static final String HAS_PARENT_PREDICATE =
-        "http://fedora.info/definitions/v4/repository#hasParent";
 
     @Before
     public void setUp() throws Exception {
-        uri = new URI("fedora://info/test");
-        parent = new URI("fedora://info/");
+        uri = new URI(INTERNAL_URI_PREFIX + "/test");
+        parent = new URI(INTERNAL_URI_PREFIX + "/");
 
         when(mockDao.findByResourceName(uri.toString())).thenReturn(Arrays.asList(new ResourceTriple(uri.toString(),
             "triple", uri.toString(), "test", "test")));
-        when(mockDao.findByResourceNameAndPredicate(uri.toString(), HAS_PARENT_PREDICATE))
+        when(mockDao.findByResourceNameAndPredicate(uri.toString(), HAS_PARENT.getURI()))
             .thenReturn(Arrays.asList(new ResourceTriple(uri.toString(),
-            "triple", parent.toString(), HAS_PARENT_PREDICATE, "test")));
+            "triple", parent.toString(), HAS_PARENT.getURI(), "test")));
 
     }
 

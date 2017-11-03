@@ -10,6 +10,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.fcrepo.lambdora.common.rdf.RdfLexicon.HAS_PARENT;
 import static org.fcrepo.lambdora.service.util.TripleUtil.toResourceTriple;
 import static org.fcrepo.lambdora.service.util.TripleUtil.toTriple;
 
@@ -76,7 +77,7 @@ public abstract class FedoraResourceImpl implements FedoraResource {
     @Override
     public URI getParent() {
         final List<ResourceTriple> parentList = this.dao.findByResourceNameAndPredicate(this.identifier.toString(),
-            "http://fedora.info/definitions/v4/repository#hasParent").stream().collect(Collectors.toList());
+            HAS_PARENT.getURI()).stream().collect(Collectors.toList());
         if (!parentList.isEmpty()) {
             return URI.create(parentList.get(0).getRdfSubject());
         } else {

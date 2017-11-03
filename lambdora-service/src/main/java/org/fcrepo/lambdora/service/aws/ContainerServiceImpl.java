@@ -14,6 +14,7 @@ import java.util.List;
 
 import static org.apache.jena.graph.NodeFactory.createLiteral;
 import static org.apache.jena.graph.NodeFactory.createURI;
+import static org.fcrepo.lambdora.common.utils.UriUtils.getParent;
 import static org.fcrepo.lambdora.service.util.TripleUtil.toResourceTriple;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -36,7 +37,7 @@ public class ContainerServiceImpl extends FedoraResourceServiceBase<Container> i
     @Override
     protected Container create(final URI identifier) {
         LOGGER.debug("Create: {}", identifier);
-
+        final Node identifierNode = createURI(identifier.toString());
         final ResourceTripleDao dao = getResourceTripleDao();
 
         // Add system generated triples
@@ -44,9 +45,26 @@ public class ContainerServiceImpl extends FedoraResourceServiceBase<Container> i
             dao.addResourceTriple(toResourceTriple(identifier, t));
         }
 
-        //TODO recursively create parents if do not exist, adding ldp:contains with a reference to child
-        final Container container =  new ContainerImpl(identifier, dao);
-        return container;
+        //add containment triples
+        final URI parent = getParent(identifier);
+        if (parent != null) {
+            final Node parentNode = createURI(parent.toString());
+
+            dao.addResourceTriple(toResourceTriple(identifier,
+                new Triple(identifierNode,
+                    createURI("http://fedora.info/definitions/v4/repository#hasParent"),
+                    parentNode)));
+
+            dao.addResourceTriple(toResourceTriple(parent,
+                new Triple(parentNode,
+                    createURI("http://www.w3.org/ns/ldp#contains"),
+                    identifierNode)));
+
+        }
+
+        //TODO recursively create parents if do not exist
+
+        return new ContainerImpl(identifier, dao);
     }
 
     /**

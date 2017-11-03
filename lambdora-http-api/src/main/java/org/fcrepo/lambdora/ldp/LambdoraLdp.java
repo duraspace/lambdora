@@ -63,6 +63,7 @@ import static org.fcrepo.http.commons.domain.RDFMediaType.TEXT_HTML_WITH_CHARSET
 import static org.fcrepo.http.commons.domain.RDFMediaType.TEXT_PLAIN_WITH_CHARSET;
 import static org.fcrepo.http.commons.domain.RDFMediaType.TURTLE_WITH_CHARSET;
 import static org.fcrepo.http.commons.domain.RDFMediaType.TURTLE_X;
+import static org.fcrepo.lambdora.common.utils.UriUtils.INTERNAL_URI_PREFIX;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -94,8 +95,6 @@ public class LambdoraLdp {
 
     @Inject
     LambdoraApplication application;
-
-    private static final String INTERNAL_URI_PREFIX = "fedora://info";
 
     /**
      * Default JAX-RS entry point

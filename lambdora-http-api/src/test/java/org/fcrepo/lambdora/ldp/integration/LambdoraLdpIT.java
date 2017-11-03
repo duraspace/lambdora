@@ -20,12 +20,14 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.METHOD_NOT_ALLOWED;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 import static javax.ws.rs.core.Response.Status.OK;
+import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
@@ -70,6 +72,13 @@ public class LambdoraLdpIT extends IntegrationTestBase {
         request.setHeaders(headers);
         final AwsProxyResponse response = handler.handleRequest(request, lambdaContext);
         assertEquals("root should exist", OK.getStatusCode(), response.getStatusCode());
+        final Model model = createModel(response);
+        final AtomicInteger count = new AtomicInteger();
+        model.listStatements().forEachRemaining(x -> {
+            assertFalse("Root should have not parent", x.getPredicate().getURI().equals(
+                "http://fedora.info/definitions/v4/repository#hasParent"));
+            count.incrementAndGet();
+        });
     }
 
 
@@ -94,24 +103,61 @@ public class LambdoraLdpIT extends IntegrationTestBase {
     public void testCreateContainerWithTriples() {
 
         final String body = "<> <http://purl.org/dc/elements/1.1/title> 'A Title' ; " +
-                      "<http://www.openarchives.org/ore/terms/proxyFor> " +
-                           "<http://sweetclipart.com/multisite/sweetclipart/files/monkey_with_banana.png> ; " +
-                      "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> " +
-                           "<http://www.openarchives.org/ore/terms/Proxy> . ";
+            "<http://www.openarchives.org/ore/terms/proxyFor> " +
+            "<http://sweetclipart.com/multisite/sweetclipart/files/monkey_with_banana.png> ; " +
+            "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> " +
+            "<http://www.openarchives.org/ore/terms/Proxy> . ";
 
         createResource("test", body);
         final AwsProxyResponse getResponse = handler.handleRequest(buildGetRequest("/test"), lambdaContext);
 
-        final Model model = ModelFactory.createDefaultModel();
-        final String responseBody = getResponse.getBody();
-        model.read(new ByteArrayInputStream(responseBody.getBytes(Charset.defaultCharset())), "", "TTL");
+        final Model model = createModel(getResponse);
         model.listStatements().forEachRemaining(x -> {
             if (x.getPredicate().getURI().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) {
                 assertEquals("subjects of rdf type predicates should equal the resource URI",
                     getBaseUri() + "/test", x.getSubject().getURI());
             }
+
+            if (x.getPredicate().getURI().equals("http://fedora.info/definitions/v4/repository#hasParent")) {
+                assertEquals("subjects of rdf type predicates should equal the resource URI",
+                    getBaseUri() + "/", x.getObject().asResource().getURI());
+            }
+
         });
+
         assertEquals("newly created resource should exist", OK.getStatusCode(), getResponse.getStatusCode());
+    }
+
+    @Test
+    public void testLdpContains() {
+        createResource("test");
+        final AwsProxyResponse response1 = handler.handleRequest(buildGetRequest("/"), lambdaContext);
+        testContains(response1, getBaseUri() + "/test");
+
+        createResource("test/child");
+        final AwsProxyResponse response2 = handler.handleRequest(buildGetRequest("/test"), lambdaContext);
+        testContains(response2, getBaseUri() + "/test/child");
+
+    }
+
+    private void testContains(final AwsProxyResponse response, final String containedUri) {
+        final Model model = createModel(response);
+        final AtomicInteger count = new AtomicInteger();
+        model.listStatements().forEachRemaining(x -> {
+            if (x.getPredicate().getURI().equals("http://www.w3.org/ns/ldp#contains")) {
+                assertEquals("subjects of rdf type predicates should equal the resource URI",
+                    containedUri, x.getObject().asResource().getURI());
+                count.incrementAndGet();
+            }
+        });
+        assertEquals("expected number of contains statements", 1, count.get());
+    }
+
+    private Model createModel(final AwsProxyResponse getResponse) {
+        final Model model = ModelFactory.createDefaultModel();
+        final String responseBody = getResponse.getBody();
+        model.read(new ByteArrayInputStream(responseBody.getBytes(Charset.defaultCharset())), "", "TTL");
+        return model;
     }
 
     @Test
@@ -123,7 +169,7 @@ public class LambdoraLdpIT extends IntegrationTestBase {
         final AwsProxyResponse getResponse = handler.handleRequest(buildGetRequest(location.replace(getBaseUri(), "")),
             lambdaContext);
 
-        assertTrue("rdf should not contain any references to internal base uri." ,
+        assertTrue("rdf should not contain any references to internal base uri.",
             !getResponse.getBody().contains("fedora://info"));
         assertEquals("newly created resource should exist", OK.getStatusCode(), getResponse.getStatusCode());
     }
@@ -185,7 +231,7 @@ public class LambdoraLdpIT extends IntegrationTestBase {
         request1.setBody(requestBody);
         final AwsProxyResponse response1 = handler.handleRequest(request1, lambdaContext);
         final String location = response1.getHeaders().get("Location");
-        assertEquals("location header is not correct",getBaseUri() + "/" + resourcePath, location);
+        assertEquals("location header is not correct", getBaseUri() + "/" + resourcePath, location);
         assertEquals("resource should have been created", CREATED.getStatusCode(), response1.getStatusCode());
         return location;
     }

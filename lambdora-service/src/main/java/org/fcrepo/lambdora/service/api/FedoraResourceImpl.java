@@ -5,7 +5,9 @@ import org.fcrepo.lambdora.service.dao.ResourceTripleDao;
 import org.fcrepo.lambdora.service.db.ResourceTriple;
 
 import java.net.URI;
+import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.fcrepo.lambdora.service.util.TripleUtil.toResourceTriple;
@@ -30,7 +32,6 @@ public abstract class FedoraResourceImpl implements FedoraResource {
             return toTriple(t.getRdfTriple());
         }
     };
-
 
 
     /**
@@ -70,5 +71,16 @@ public abstract class FedoraResourceImpl implements FedoraResource {
         triples.forEach(triple -> {
             this.dao.addResourceTriple(toResourceTriple(getIdentifier(), triple));
         });
+    }
+
+    @Override
+    public URI getParent() {
+        final List<ResourceTriple> parentList = this.dao.findByResourceNameAndPredicate(this.identifier.toString(),
+            "http://fedora.info/definitions/v4/repository#hasParent").stream().collect(Collectors.toList());
+        if (!parentList.isEmpty()) {
+            return URI.create(parentList.get(0).getRdfSubject());
+        } else {
+            return null;
+        }
     }
 }

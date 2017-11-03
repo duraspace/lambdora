@@ -30,6 +30,7 @@ import static javax.ws.rs.core.Response.Status.OK;
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 import static org.fcrepo.lambdora.common.rdf.RdfLexicon.HAS_PARENT;
+import static org.fcrepo.lambdora.common.rdf.RdfLexicon.INTERNAL_URI_PREFIX;
 import static org.fcrepo.lambdora.common.rdf.RdfLexicon.TYPE;
 import static org.fcrepo.lambdora.common.rdf.RdfLexicon.CONTAINS;
 
@@ -174,7 +175,7 @@ public class LambdoraLdpIT extends IntegrationTestBase {
             lambdaContext);
 
         assertTrue("rdf should not contain any references to internal base uri.",
-            !getResponse.getBody().contains("fedora://info"));
+            !getResponse.getBody().contains(INTERNAL_URI_PREFIX));
         assertEquals("newly created resource should exist", OK.getStatusCode(), getResponse.getStatusCode());
     }
 

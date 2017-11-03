@@ -17,6 +17,7 @@ import static org.fcrepo.lambdora.common.rdf.RdfLexicon.CREATED_DATE;
 import static org.fcrepo.lambdora.common.rdf.RdfLexicon.FEDORA_CONTAINER;
 import static org.fcrepo.lambdora.common.rdf.RdfLexicon.FEDORA_RESOURCE;
 import static org.fcrepo.lambdora.common.rdf.RdfLexicon.HAS_PARENT;
+import static org.fcrepo.lambdora.common.rdf.RdfLexicon.INTERNAL_URI_PREFIX;
 import static org.fcrepo.lambdora.common.rdf.RdfLexicon.RDF_SOURCE;
 import static org.fcrepo.lambdora.common.rdf.RdfLexicon.TYPE;
 import static org.junit.Assert.assertEquals;
@@ -59,8 +60,8 @@ public class AwsLambdoraApplicationIT extends IntegrationTestBase {
     @Test
     public void testContainerServiceRoundTrip() {
         final ContainerService containerService = application.containerService();
-        final URI identifier = URI.create("fedora://info/test");
-        final URI parent = URI.create("fedora://info/");
+        final URI identifier = URI.create(INTERNAL_URI_PREFIX + "/test");
+        final URI parent = URI.create(INTERNAL_URI_PREFIX + "/");
 
         assertFalse("identifier should not exist", containerService.exists(identifier));
         final Container container = containerService.findOrCreate(identifier);

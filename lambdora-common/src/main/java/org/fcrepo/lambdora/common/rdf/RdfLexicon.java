@@ -174,6 +174,11 @@ public final class RdfLexicon {
     public static final Property MEMBER_SUBJECT =
         createProperty(LDP_NAMESPACE + "MemberSubject");
 
+    /**
+     * Prefix for internal repository resources
+     */
+    public static final String INTERNAL_URI_PREFIX = "fedora://info";
+
     private static final Set<Property> ldpManagedProperties = of(CONTAINS);
 
     // REPOSITORY INFORMATION

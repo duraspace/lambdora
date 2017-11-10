@@ -71,6 +71,12 @@ subprojects {
         systemProperty "java.library.path", 'build/libs'
     }
 
+    // Log exceptions of any unit test failures to stdout
+    test.testLogging {
+        events "failed"
+        exceptionFormat "full"
+    }
+
     //ensures that idea sees the generated source files in the src classpath
     def generated = new File(buildDir, "generated/source/apt/main")
 

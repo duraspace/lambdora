@@ -76,6 +76,13 @@ public class ContainerServiceImpl extends FedoraResourceServiceBase<Container> i
         return new ContainerImpl(identifier, dao);
     }
 
+    @Override
+    protected Container load(final URI identifier) {
+        LOGGER.debug("Load: {}", identifier);
+        final ResourceTripleDao dao = getResourceTripleDao();
+        return new ContainerImpl(identifier, dao);
+    }
+
     /**
      * Get system generated triples for this resource
      * @param identifier resource URI

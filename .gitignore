@@ -16,5 +16,8 @@ target
 *.war
 *.ear
 
+# Don't ignore gradle-wrapper distributed in project
+!/gradle/wrapper/gradle-wrapper.jar
+
 # Serverless directories
 .serverless

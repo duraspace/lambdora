@@ -34,7 +34,7 @@ public abstract class FedoraResourceServiceBase<T> implements Service<T> {
     @Override
     public T find(final URI identifier) {
         if (exists(identifier)) {
-            return create(identifier);
+            return load(identifier);
         } else {
             return null;
         }
@@ -63,4 +63,13 @@ public abstract class FedoraResourceServiceBase<T> implements Service<T> {
      * @return
      */
     abstract protected T create(final URI identifier);
+
+
+    /**
+     * load existing resource
+     *
+     * @param identifier
+     * @return
+     */
+    abstract protected T load(final URI identifier);
 }

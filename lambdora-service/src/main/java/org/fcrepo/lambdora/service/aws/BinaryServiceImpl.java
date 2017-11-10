@@ -25,4 +25,9 @@ public class BinaryServiceImpl extends FedoraResourceServiceBase<FedoraBinary> i
     protected FedoraBinary create(final URI identifier) {
         return new FedoraBinaryImpl(identifier, getResourceTripleDao());
     }
+
+    @Override
+    protected FedoraBinary load(final URI identifier) {
+        return new FedoraBinaryImpl(identifier, getResourceTripleDao());
+    }
 }
